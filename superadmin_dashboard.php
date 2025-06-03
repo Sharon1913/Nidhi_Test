@@ -64,6 +64,17 @@ if (isset($_GET['delete_user'])) {
     exit();
 }
 
+// Handle user to admin conversion
+if (isset($_GET['convert_to_admin'])) {
+    $employee_id = $_GET['convert_to_admin'];
+    $stmt = mysqli_prepare($conn, "UPDATE users SET role = 'admin' WHERE employee_id = ? AND role = 'user'");
+    mysqli_stmt_bind_param($stmt, "s", $employee_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    header("Location: superadmin_dashboard.php");
+    exit();
+}
+
 // Handle admin block/suspend
 if (isset($_GET['block_admin'])) {
     $employee_id = $_GET['block_admin'];
@@ -89,30 +100,49 @@ if (isset($_GET['revive_admin'])) {
 // Handle project deletion
 if (isset($_GET['delete_project'])) {
     $project_id = intval($_GET['delete_project']);
+    
+    // Delete related tasks
     $delete_tasks = "DELETE FROM tasks WHERE project_id = ?";
     $stmt = mysqli_prepare($conn, $delete_tasks);
     mysqli_stmt_bind_param($stmt, "i", $project_id);
     mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     
+    // Delete related project assignments
     $delete_assignments = "DELETE FROM project_assignments WHERE project_id = ?";
     $stmt = mysqli_prepare($conn, $delete_assignments);
     mysqli_stmt_bind_param($stmt, "i", $project_id);
     mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     
+    // Delete related notifications
     $delete_notifications = "DELETE FROM notifications WHERE project_id = ?";
     $stmt = mysqli_prepare($conn, $delete_notifications);
     mysqli_stmt_bind_param($stmt, "i", $project_id);
     mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     
+    // Delete related file uploads
     $delete_file_uploads = "DELETE FROM file_uploads WHERE task_id IN (SELECT id FROM tasks WHERE project_id = ?)";
     $stmt = mysqli_prepare($conn, $delete_file_uploads);
     mysqli_stmt_bind_param($stmt, "i", $project_id);
     mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     
+    // Delete related project user assignments
+    $delete_project_user_assignments = "DELETE FROM project_user_assignments WHERE project_id = ?";
+    $stmt = mysqli_prepare($conn, $delete_project_user_assignments);
+    mysqli_stmt_bind_param($stmt, "i", $project_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    
+    // Now delete the project
     $delete_project = "DELETE FROM projects WHERE id = ?";
     $stmt = mysqli_prepare($conn, $delete_project);
     mysqli_stmt_bind_param($stmt, "i", $project_id);
     mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    
     header("Location: superadmin_dashboard.php");
     exit();
 }
@@ -336,203 +366,203 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-    --primary: #6366f1; /* Indigo */
-    --primary-dark: #4f46e5;
-    --secondary: #f1f5f9; /* Light gray */
-    --accent: #06b6d4; /* Cyan */
-    --success: #10b981; /* Green */
-    --warning: #f59e0b; /* Amber */
-    --danger: #ef4444; /* Red */
-    --dark: #0f172a; /* Slate */
-    --gray: #64748b;
-    --light: #f8fafc;
-    --white: #ffffff;
-    --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Indigo to purple */
-    --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); /* Pink to red */
-    --gradient-3: linear-gradient(135deg, #4facfe 0%, #22d6df 100%); /* Blue to cyan */
-    --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); /* Green to teal */
-    --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f1f5f9;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light: #f8fafc;
+            --white: #ffffff;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #22d6df 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%,rgb(3, 190, 155) 100%);
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-    font-family: 'Inter', Arial, sans-serif;
-    background: var(--light);
-    color: var(--dark);
-    line-height: 1.6;
-    display: flex;
-    min-height: 100vh;
-}
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
 
-/* Sidebar */
-.sidebar {
-    width: 280px;
-    background: #1f2937;
-    color: white;
-    padding: 2rem 0;
-    position: fixed;
-    height: 100%;
-    overflow-y: auto;
-    z-index: 1000;
-    transition: all 0.3s ease;
-}
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #1f2937;
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
 
-.sidebar-header {
+        .sidebar-header {
             padding: 0 2rem;
             margin-bottom: 2rem;
         }
 
-.sidebar h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    padding: 0 2rem;
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
+        .sidebar h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 0 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
 
-.sidebar a {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 2rem;
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    font-weight: 500;
-    border-radius: 12px;
-    margin: 0 1rem 0.5rem;
-    transition: all 0.3s ease;
-}
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 12px;
+            margin: 0 1rem 0.5rem;
+            transition: all 0.3s ease;
+        }
 
-.sidebar a i {
-    font-size: 1.2rem;
-    width: 20px;
-}
+        .sidebar a i {
+            font-size: 1.2rem;
+            width: 20px;
+        }
 
-.sidebar a:hover,
-.sidebar a.active {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    transform: translateX(5px);
-}
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
 
-/* Dashboard Container */
-.dashboard-container {
-    margin-left: 280px;
-    flex: 1;
-    padding: 2rem;
-}
+        /* Dashboard Container */
+        .dashboard-container {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2rem;
+        }
 
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    min-height: calc(100vh - 200px);
-}
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            min-height: calc(100vh - 200px);
+        }
 
-/* Header */
-.dashboard-header {
-    background: white;
-    padding: 1.5rem 2rem;
-    box-shadow: var(--shadow);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-radius: 16px;
-}
+        /* Header */
+        .dashboard-header {
+            background: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-radius: 16px;
+        }
 
-.dashboard-header h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--dark);
-}
+        .dashboard-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
 
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
 
-.welcome-text {
-    font-size: 1rem;
-    color: var(--gray);
-    font-weight: 500;
-}
+        .welcome-text {
+            font-size: 1rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
 
-/* Buttons */
-.btn, .btn-primary, .btn-logout, .btn-approve, .btn-reject, .btn-delete, .btn-block, .btn-revive, .btn-view {
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
+        /* Buttons */
+        .btn, .btn-primary, .btn-logout, .btn-approve, .btn-reject, .btn-delete, .btn-block, .btn-revive, .btn-view, .btn-convert {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
 
-.btn-primary {
-    background: var(--gradient-1);
-    color: white;
-}
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
 
-.btn-logout {
-    background: var(--gradient-2);
-    color: white;
-}
+        .btn-logout {
+            background: var(--gradient-2);
+            color: white;
+        }
 
-.btn-approve {
-    background: var(--gradient-4);
-    color: white;
-}
+        .btn-approve, .btn-convert {
+            background: var(--gradient-4);
+            color: white;
+        }
 
-.btn-reject, .btn-delete, .btn-block {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-    color: white;
-}
+        .btn-reject, .btn-delete, .btn-block {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
 
-.btn-revive, .btn-view {
-    background: var(--gradient-3);
-    color: white;
-}
+        .btn-revive, .btn-view {
+            background: var(--gradient-3);
+            color: white;
+        }
 
-.btn-primary:hover, .btn-logout:hover, .btn-approve:hover, .btn-reject:hover,
-.btn-delete:hover, .btn-block:hover, .btn-revive:hover, .btn-view:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
+        .btn-primary:hover, .btn-logout:hover, .btn-approve:hover, .btn-reject:hover,
+        .btn-delete:hover, .btn-block:hover, .btn-revive:hover, .btn-view:hover, .btn-convert:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
 
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.3s ease;
-}
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.3s ease;
+        }
 
-.btn:hover::before {
-    left: 100%;
-}
+        .btn:hover::before {
+            left: 100%;
+        }
 
-.dashboard-main {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
-}
+        .dashboard-main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
 
         .logo {
             display: flex;
@@ -542,6 +572,7 @@ body {
             font-size: 1.25rem;
             font-weight: 700;
         }
+
         .logo img {
             width: 100px;
             height: 50px;
@@ -550,6 +581,7 @@ body {
             background: rgba(255, 255, 255, 0.2);
             padding: 5px;
         }
+
         .logo-icon {
             width: 50px;
             height: 50px;
@@ -561,580 +593,689 @@ body {
             font-size: 1.5rem;
         }
 
-/* Notification Icon */
-.notification-icon {
-    position: relative;
-    cursor: pointer;
-    font-size: 1.2rem;
-    color: #f1be02;
-    padding: 0.5rem;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.notification-icon:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.1);
-}
-
-.notification-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: var(--danger);
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 50%;
-    border: 2px solid  #ef4444;
-}
-
-/* Notification Dropdown */
-.notification-dropdown {
-    display: none;
-    position: absolute;
-    top: 60px;
-    right: 20px;
-    width: 350px;
-    background: var(--white);
-    border-radius: 16px;
-    box-shadow: var(--shadow-lg);
-    z-index: 1000;
-    max-height: 400px;
-    overflow-y: auto;
-    border: 1px solid #e2e8f0;
-}
-
-.notification-dropdown.active {
-    display: block;
-}
-
-.notification-item {
-    padding: 1rem;
-    border-bottom: 1px solid var(--secondary);
-    transition: all 0.3s ease;
-}
-
-.notification-item:hover {
-    background: var(--secondary);
-}
-
-.notification-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.notification-title {
-    font-weight: 600;
-    color: var(--dark);
-    font-size: 0.9rem;
-}
-
-.notification-time {
-    font-size: 0.75rem;
-    color: var(--gray);
-}
-
-.notification-message {
-    font-size: 0.85rem;
-    color: var(--gray);
-    margin-bottom: 0.5rem;
-}
-
-.notification-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.notification-file {
-    display: inline-block;
-    color: var(--primary);
-    font-size: 0.8rem;
-    text-decoration: none;
-    margin-bottom: 0.5rem;
-}
-
-.notification-file:hover {
-    text-decoration: underline;
-}
-
-.notification-empty {
-    padding: 1.5rem;
-    text-align: center;
-    color: var(--gray);
-    font-size: 0.9rem;
-}
-
-/* Tab Container */
-.tab-container {
-    margin-bottom: 2rem;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* Form Container */
-.form-container {
-    background: var(--white);
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    margin-bottom: 2rem;
-}
-
-.form-container h3 {
-    margin-bottom: 1.5rem;
-    color: var(--dark);
-    font-weight: 600;
-}
-
-.form-container form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.form-container input,
-.form-container select,
-.form-container textarea {
-    padding: 1rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    width: 100%;
-    font-size: 1rem;
-    color: var(--dark);
-    transition: all 0.3s ease;
-}
-
-.form-container input:focus,
-.form-container select:focus,
-.form-container textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-.form-container button {
-    background: var(--gradient-1);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.form-container button:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-/* Checkbox Container */
-.checkbox-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 1rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    background: var(--white);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.checkbox-container label {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.95rem;
-    color: var(--dark);
-    padding: 0.5rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.checkbox-container label:hover {
-    background: var(--secondary);
-}
-
-.checkbox-container input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--primary);
-    cursor: pointer;
-}
-
-/* List Container */
-.list-container {
-    background: var(--white);
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-}
-
-.list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid var(--secondary);
-    transition: all 0.3s ease;
-}
-
-.list-item:hover {
-    background: var(--secondary);
-}
-
-/* Project Card */
-.project-card {
-    background: white;
-    border: 2px solid var(--secondary);
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.project-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--gradient-1);
-    transform: scaleY(0);
-    transition: transform 0.3s ease;
-    transform-origin: bottom;
-}
-
-.project-card:hover::before {
-    transform: scaleY(1);
-}
-
-.project-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary);
-}
-
-.project-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    gap: 1rem;
-}
-
-.project-header h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--dark);
-    line-height: 1.3;
-    flex: 1;
-}
-
-.status-badge {
-    padding: 0.4rem 0.8rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-    white-space: nowrap;
-}
-
-.status-active {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.status-completed {
-    background: rgba(6, 182, 212, 0.1);
-    color: var(--accent);
-    border: 1px solid rgba(6, 182, 212, 0.2);
-}
-
-.status-pending {
-    background: rgba(245, 158, 11, 0.1);
-    color: var(--warning);
-    border: 1px solid rgba(245, 158, 11, 0.2);
-}
-
-.status-delayed {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    animation: pulse-danger 2s infinite;
-}
-
-@keyframes pulse-danger {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-.project-description {
-    color: var(--gray);
-    font-size: 0.9rem;
-    line-height: 1.5;
-    margin-bottom: 1rem;
-}
-
-.project-meta {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-
-.meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--gray);
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.meta-item i {
-    color: var(--primary);
-    font-size: 0.9rem;
-}
-
-.project-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-}
-
-.btn-view {
-    background: var(--gradient-1);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.btn-view:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-/* Stats Cards */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-    padding: 2rem;
-}
-
-.stat-card {
-    background: var(--white);
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--gradient-1);
-}
-
-.stat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
-    background: var(--gradient-1);
-}
-
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--dark);
-    line-height: 1;
-}
-
-.stat-label {
-    color: var(--gray);
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 0.875rem;
-    letter-spacing: 0.025em;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 8px;
-    background: #e2e8f0;
-    border-radius: 50px;
-    overflow: hidden;
-    margin-top: 1rem;
-}
-
-.progress-fill {
-    height: 100%;
-    background: var(--gradient-4);
-    border-radius: 50px;
-    transition: width 1s ease;
-}
-
-.dashboard-main {
-        padding: 1rem;
-    }
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: var(--gray);
-}
-
-.empty-state i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.3;
-}
-
-/* Animations */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.fade-in {
-    animation: fadeIn 0.8s ease-out;
-}
-
-.slide-up {
-    animation: slideUp 0.6s ease-out;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .sidebar {
-        width: 240px;
-    }
-
-    .dashboard-container {
-        margin-left: 240px;
-    }
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-    }
-
-    .dashboard-container {
-        margin-left: 0;
-    }
-
-        .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-
-    .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
-
-    .form-container form {
-        grid-template-columns: 1fr;
-    }
-
-    .form-container button {
-        grid-column: span 1;
-    }
-
-    .dashboard-header {
-        flex-direction: column;
-        gap: 2rem;
-        align-items: flex-start;
-    }
-
-    .header-actions {
-        width: 100%;
-        justify-content: space-between;
-    }
-}
+        /* Notification Icon */
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #f1be02;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .notification-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 50%;
+            border: 2px solid #ef4444;
+        }
+
+        /* Notification Dropdown */
+        .notification-dropdown {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            width: 350px;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+        }
+
+        .notification-dropdown.active {
+            display: block;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+
+        .notification-item:hover {
+            background: var(--secondary);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .notification-message {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .notification-file {
+            display: inline-block;
+            color: var(--primary);
+            font-size: 0.8rem;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-file:hover {
+            text-decoration: underline;
+        }
+
+        .notification-empty {
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Tab Container */
+        .tab-container {
+            margin-bottom: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .form-container h3 {
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-container label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .form-container input,
+        .form-container select,
+        .form-container textarea {
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 1rem;
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        .form-container input:focus,
+        .form-container select:focus,
+        .form-container textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-container button {
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            grid-column: span 2;
+            margin-top: 1rem;
+            align-self: center;
+            min-width: 200px;
+        }
+
+        .form-container button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .message-success {
+            color: var(--success);
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .message-error {
+            color: var(--danger);
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        /* Checkbox Container */
+        .checkbox-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: var(--white);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .checkbox-container label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--dark);
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-container label:hover {
+            background: var(--secondary);
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* List Container */
+        .list-container {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+
+        .list-item:hover {
+            background: var(--secondary);
+        }
+
+        /* Project Card */
+        .project-card {
+            background: white;
+            border: 2px solid var(--secondary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gradient-1);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+            transform-origin: bottom;
+        }
+
+        .project-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .project-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .project-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            line-height: 1.3;
+            flex: 1;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-completed {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-delayed {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            animation: pulse-danger 2s infinite;
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .project-description {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .meta-item i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        ./* Project Card */
+        .project-card {
+            background: white;
+            border: 2px solid var(--secondary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gradient-1);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+            transform-origin: bottom;
+        }
+
+        .project-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .project-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .project-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            line-height: 1.3;
+            flex: 1;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-completed {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-delayed {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            animation: pulse-danger 2s infinite;
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .project-description {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .meta-item i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .project-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn-view {
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-view:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            background: var(--gradient-1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--dark);
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.025em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 50px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-4);
+            border-radius: 50px;
+            transition: width 1s ease;
+        }
+
+        .dashboard-main {
+            padding: 1rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -1424,9 +1565,14 @@ body {
                         <?php while ($user = mysqli_fetch_assoc($users_result)): ?>
                             <div class="list-item">
                                 <span><?= htmlspecialchars($user['email']) ?></span>
-                                <button class="btn-delete" onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='superadmin_dashboard.php?delete_user=<?= urlencode($user['employee_id']) ?>'">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
+                                <div>
+                                    <button class="btn-convert" onclick="if(confirm('Are you sure you want to convert this user to admin?')) window.location.href='superadmin_dashboard.php?convert_to_admin=<?= urlencode($user['employee_id']) ?>'">
+                                        <i class="fas fa-user-shield"></i> Admin
+                                    </button>
+  <button class="btn-delete" onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='superadmin_dashboard.php?delete_user=<?= urlencode($user['employee_id']) ?>'">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
                             </div>
                         <?php endwhile; ?>
                     <?php else: ?>
@@ -1439,21 +1585,33 @@ body {
             <div class="tab-content" id="add-user-admin">
                 <div class="form-container">
                     <h3>Add New User/Admin</h3>
-                    <?php if (isset($message) && strpos($message, 'added successfully') !== false) echo "<p style='color:green;'>$message</p>"; ?>
-                    <?php if (isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
-                    <form method="POST">
+                    <?php if (isset($message) && strpos($message, 'added successfully') !== false): ?>
+                        <p class="message-success"><?= htmlspecialchars($message) ?></p>
+                    <?php endif; ?>
+                    <?php if (isset($error)): ?>
+                        <p class="message-error"><?= htmlspecialchars($error) ?></p>
+                    <?php endif; ?>
+                    <form method="POST" class="form-grid">
                         <input type="hidden" name="add_user_admin" value="1">
-                        <label>Role:</label>
-                        <select name="role" required>
-                            <option value="admin">Admin</option>
-                            <option value="user">User</option>
-                        </select>
-                        <label>Email:</label>
-                        <input type="email" name="email" required>
-                        <label>Employee ID:</label>
-                        <input type="text" name="employee_id" required>
-                        <label>Temporary Password:</label>
-                        <input type="text" name="password" required>
+                        <div class="form-group">
+                            <label for="role">Role:</label>
+                            <select name="role" id="role" required>
+                                <option value="admin">Admin</option>
+                                <option value="user">User</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" name="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employee_id">Employee ID:</label>
+                            <input type="text" name="employee_id" id="employee_id" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Temporary Password:</label>
+                            <input type="text" name="password" id="password" required>
+                        </div>
                         <button type="submit">Add User/Admin</button>
                     </form>
                 </div>
@@ -1463,33 +1621,43 @@ body {
             <div class="tab-content" id="assignments">
                 <div class="form-container">
                     <h3>Assign Project and Team Members</h3>
-                    <?php if (isset($team_success)) echo "<p style='color:green;'>$team_success</p>"; ?>
-                    <?php if (isset($team_error)) echo "<p style='color:red;'>$team_error</p>"; ?>
-                    <form method="POST">
-                        <enter type="hidden" name="assign_project_team" value="1">
-                        <label>Select Project:</label>
-                        <select name="project_id" required>
-                            <?php mysqli_data_seek($team_projects_result, 0); ?>
-                            <?php while ($project = mysqli_fetch_assoc($team_projects_result)): ?>
-                                <option value="<?= htmlspecialchars($project['id']) ?>"><?= htmlspecialchars($project['name']) ?></option>
-                            <?php endwhile; ?>
-                        </select>
-                        <label>Select Admin:</label>
-                        <select name="admin_id" required>
-                            <?php mysqli_data_seek($team_admins_result, 0); ?>
-                            <?php while ($admin = mysqli_fetch_assoc($team_admins_result)): ?>
-                                <option value="<?= htmlspecialchars($admin['employee_id']) ?>"><?= htmlspecialchars($admin['email']) ?></option>
-                            <?php endwhile; ?>
-                        </select>
-                        <label>Select Users (Optional):</label>
-                        <div class="checkbox-container">
-                            <?php mysqli_data_seek($team_users_result, 0); ?>
-                            <?php while ($user = mysqli_fetch_assoc($team_users_result)): ?>
-                                <label>
-                                    <input type="checkbox" name="user_ids[]" value="<?= htmlspecialchars($user['employee_id']) ?>">
-                                    <?= htmlspecialchars($user['email']) ?>
-                                </label>
-                            <?php endwhile; ?>
+                    <?php if (isset($team_success)): ?>
+                        <p class="message-success"><?= htmlspecialchars($team_success) ?></p>
+                    <?php endif; ?>
+                    <?php if (isset($team_error)): ?>
+                        <p class="message-error"><?= htmlspecialchars($team_error) ?></p>
+                    <?php endif; ?>
+                    <form method="POST" class="form-grid">
+                        <input type="hidden" name="assign_project_team" value="1">
+                        <div class="form-group">
+                            <label for="project_id">Select Project:</label>
+                            <select name="project_id" id="project_id" required>
+                                <?php mysqli_data_seek($team_projects_result, 0); ?>
+                                <?php while ($project = mysqli_fetch_assoc($team_projects_result)): ?>
+                                    <option value="<?= htmlspecialchars($project['id']) ?>"><?= htmlspecialchars($project['name']) ?></option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin_id">Select Admin:</label>
+                            <select name="admin_id" id="admin_id" required>
+                                <?php mysqli_data_seek($team_admins_result, 0); ?>
+                                <?php while ($admin = mysqli_fetch_assoc($team_admins_result)): ?>
+                                    <option value="<?= htmlspecialchars($admin['employee_id']) ?>"><?= htmlspecialchars($admin['email']) ?></option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="user_ids">Select Users (Optional):</label>
+                            <div class="checkbox-container">
+                                <?php mysqli_data_seek($team_users_result, 0); ?>
+                                <?php while ($user = mysqli_fetch_assoc($team_users_result)): ?>
+                                    <label>
+                                        <input type="checkbox" name="user_ids[]" value="<?= htmlspecialchars($user['employee_id']) ?>">
+                                        <?= htmlspecialchars($user['email']) ?>
+                                    </label>
+                                <?php endwhile; ?>
+                            </div>
                         </div>
                         <button type="submit">Assign Project and Team</button>
                     </form>
@@ -1500,52 +1668,72 @@ body {
             <div class="tab-content" id="task-assignment">
                 <div class="form-container">
                     <h3>Create New Task</h3>
-                    <?php if (isset($task_success)) echo "<p style='color:green;'>$task_success</p>"; ?>
-                    <?php if (isset($task_error)) echo "<p style='color:red;'>$task_error</p>"; ?>
-                    <form method="POST">
+                    <?php if (isset($task_success)): ?>
+                        <p class="message-success"><?= htmlspecialchars($task_success) ?></p>
+                    <?php endif; ?>
+                    <?php if (isset($task_error)): ?>
+                        <p class="message-error"><?= htmlspecialchars($task_error) ?></p>
+                    <?php endif; ?>
+                    <form method="POST" class="form-grid">
                         <input type="hidden" name="create_task" value="1">
-                        <label>Task Title:</label>
-                        <input type="text" name="title" required>
-                        <label>Description:</label>
-                        <textarea name="description" rows="4"></textarea>
-                        <label>Due Date:</label>
-                        <input type="date" name="due_date">
-                        <label>Select Project:</label>
-                        <select name="project_id" required>
-                            <?php mysqli_data_seek($projects_result, 0); ?>
-                            <?php while ($project = mysqli_fetch_assoc($projects_result)): ?>
-                                <option value="<?= $project['id'] ?>"><?= htmlspecialchars($project['name']) ?></option>
-                            <?php endwhile; ?>
-                        </select>
-                        <label>Category:</label>
-                        <select name="category" required>
-                            <option value="UGV">UGV</option>
-                            <option value="UAV">UAV</option>
-                        </select>
+                        <div class="form-group">
+                            <label for="title">Task Title:</label>
+                            <input type="text" name="title" id="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="due_date">Due Date:</label>
+                            <input type="date" name="due_date" id="due_date">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="description">Description:</label>
+                            <textarea name="description" id="description" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_id">Select Project:</label>
+                            <select name="project_id" id="project_id" required>
+                                <?php mysqli_data_seek($projects_result, 0); ?>
+                                <?php while ($project = mysqli_fetch_assoc($projects_result)): ?>
+                                    <option value="<?= $project['id'] ?>"><?= htmlspecialchars($project['name']) ?></option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category:</label>
+                            <select name="category" id="category" required>
+                                <option value="UGV">UGV</option>
+                                <option value="UAV">UAV</option>
+                            </select>
+                        </div>
                         <button type="submit">Create Task</button>
                     </form>
                 </div>
                 <div class="form-container">
                     <h3>Assign Task</h3>
-                    <?php if (isset($message) && strpos($message, 'Task assigned') !== false) echo "<p style='color:green;'>$message</p>"; ?>
-                    <form method="POST">
+                    <?php if (isset($message) && strpos($message, 'Task assigned') !== false): ?>
+                        <p class="message-success"><?= htmlspecialchars($message) ?></p>
+                    <?php endif; ?>
+                    <form method="POST" class="form-grid">
                         <input type="hidden" name="assign_task" value="1">
-                        <label>Select Task:</label>
-                        <select name="task_id" required>
-                            <?php mysqli_data_seek($tasks_result, 0); ?>
-                            <?php while ($task = mysqli_fetch_assoc($tasks_result)): ?>
-                                <option value="<?= $task['id'] ?>"><?= htmlspecialchars($task['title']) ?></option>
-                            <?php endwhile; ?>
-                        </select>
-                        <label>Select Employee:</label>
-                        <select name="employee_id" required>
-                            <?php mysqli_data_seek($all_users_result, 0); ?>
-                            <?php while ($employee = mysqli_fetch_assoc($all_users_result)): ?>
-                                <option value="<?= htmlspecialchars($employee['employee_id']) ?>">
-                                    <?= htmlspecialchars($employee['email']) ?> (<?= ucfirst($employee['role']) ?>)
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
+                        <div class="form-group">
+                            <label for="task_id">Select Task:</label>
+                            <select name="task_id" id="task_id" required>
+                                <?php mysqli_data_seek($tasks_result, 0); ?>
+                                <?php while ($task = mysqli_fetch_assoc($tasks_result)): ?>
+                                    <option value="<?= $task['id'] ?>"><?= htmlspecialchars($task['title']) ?></option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="employee_id">Select Employee:</label>
+                            <select name="employee_id" id="employee_id" required>
+                                <?php mysqli_data_seek($all_users_result, 0); ?>
+                                <?php while ($employee = mysqli_fetch_assoc($all_users_result)): ?>
+                                    <option value="<?= htmlspecialchars($employee['employee_id']) ?>">
+                                        <?= htmlspecialchars($employee['email']) ?> (<?= ucfirst($employee['role']) ?>)
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
                         <button type="submit">Assign Task</button>
                     </form>
                 </div>

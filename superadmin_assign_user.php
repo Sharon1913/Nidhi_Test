@@ -93,14 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch all users not assigned to this project, excluding superadmins
+// Fetch all users not assigned to this project, excluding superadmins and admins
 $available_users_query = "SELECT u.employee_id, u.email, u.role 
                          FROM users u 
                          WHERE u.employee_id NOT IN (
                              SELECT pa.employee_id 
                              FROM project_assignments pa 
                              WHERE pa.project_id = ?
-                         ) AND u.role != 'superadmin'
+                         ) AND u.role NOT IN ('superadmin', 'admin')
                          ORDER BY u.email";
 
 $stmt = mysqli_prepare($conn, $available_users_query);
@@ -108,13 +108,28 @@ mysqli_stmt_bind_param($stmt, "i", $project_id);
 mysqli_stmt_execute($stmt);
 $available_users_result = mysqli_stmt_get_result($stmt);
 
-// Fetch users already assigned to this project
+// Fetch admins assigned to this project
+$assigned_admins_query = "SELECT u.employee_id, u.email, u.role, pa.assigned_at,
+                         COUNT(t.id) as task_count
+                         FROM users u
+                         INNER JOIN project_assignments pa ON u.employee_id = pa.employee_id
+                         LEFT JOIN tasks t ON u.employee_id = t.employee_id AND t.project_id = ?
+                         WHERE pa.project_id = ? AND u.role = 'admin'
+                         GROUP BY u.employee_id, u.email, u.role, pa.assigned_at
+                         ORDER BY u.email";
+
+$stmt = mysqli_prepare($conn, $assigned_admins_query);
+mysqli_stmt_bind_param($stmt, "ii", $project_id, $project_id);
+mysqli_stmt_execute($stmt);
+$assigned_admins_result = mysqli_stmt_get_result($stmt);
+
+// Fetch non-admin users already assigned to this project
 $assigned_users_query = "SELECT u.employee_id, u.email, u.role, pa.assigned_at,
                         COUNT(t.id) as task_count
                         FROM users u
                         INNER JOIN project_assignments pa ON u.employee_id = pa.employee_id
                         LEFT JOIN tasks t ON u.employee_id = t.employee_id AND t.project_id = ?
-                        WHERE pa.project_id = ? AND u.role != 'superadmin'
+                        WHERE pa.project_id = ? AND u.role NOT IN ('superadmin', 'admin')
                         GROUP BY u.employee_id, u.email, u.role, pa.assigned_at
                         ORDER BY u.email";
 
@@ -133,10 +148,24 @@ $assigned_users_result = mysqli_stmt_get_result($stmt);
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            min-width: 1200px;
+            width: 100%;
+            overflow-x: auto;
+        }
+
         .assign-container {
             max-width: 1200px;
+            min-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            box-sizing: border-box;
         }
         
         .project-header {
@@ -193,6 +222,7 @@ $assigned_users_result = mysqli_stmt_get_result($stmt);
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
+            min-width: 1200px;
         }
         
         .section {
@@ -381,19 +411,86 @@ $assigned_users_result = mysqli_stmt_get_result($stmt);
             border: 1px solid #feb2b2;
         }
         
-        @media (max-width: 768px) {
-            .assign-sections {
-                grid-template-columns: 1fr;
-            }
-            
-            .user-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            
-            .user-info {
-                width: 100%;
+        /* Enhanced Assigned Admins UI */
+        .admins-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 2px solid #667eea;
+        }
+
+        .admins-section .section-header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5253);
+            border-radius: 12px 12px 0 0;
+            padding: 1rem 1.5rem;
+        }
+
+        .admin-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .admin-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            background: #f8f9fa;
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5253);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .admin-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-email {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        .admin-meta {
+            font-size: 0.9rem;
+            color: #718096;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .admin-meta i {
+            color: #667eea;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-container, .assign-container, .assign-sections {
+                min-width: 1200px;
             }
         }
     </style>
@@ -412,6 +509,7 @@ $assigned_users_result = mysqli_stmt_get_result($stmt);
                         <i class="fas fa-home"></i> Dashboard
                     </a>
                     <a href="admin_logout.php" class="btn btn-logout">
+                        <i Transparent to Superadmin
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </div>
@@ -436,6 +534,47 @@ $assigned_users_result = mysqli_stmt_get_result($stmt);
                 <p style="color: #718096; margin: 0;">
                     <?= nl2br(htmlspecialchars($project['description'])) ?>
                 </p>
+            </div>
+
+            <!-- Assigned Admins Section -->
+            <div class="admins-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-shield"></i> Assigned Admins</h2>
+                    <span class="project-count"><?= mysqli_num_rows($assigned_admins_result) ?> Assigned</span>
+                </div>
+                <div class="section-content">
+                    <?php if (mysqli_num_rows($assigned_admins_result) > 0): ?>
+                        <div class="user-list">
+                            <?php while($admin = mysqli_fetch_assoc($assigned_admins_result)): ?>
+                                <div class="admin-card">
+                                    <div class="admin-info">
+                                        <div class="admin-avatar">
+                                            <?= strtoupper(substr($admin['email'], 0, 2)) ?>
+                                        </div>
+                                        <div class="admin-details">
+                                            <span class="admin-email"><?= htmlspecialchars($admin['email']) ?></span>
+                                            <span class="admin-meta">
+                                                <i class="fas fa-calendar-alt"></i> Assigned: <?= date('M d, Y', strtotime($admin['assigned_at'])) ?> | 
+                                                <i class="fas fa-tasks"></i> Tasks: <?= $admin['task_count'] ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove this admin from the project? This will also delete their tasks.')">
+                                        <input type="hidden" name="employee_id" value="<?= htmlspecialchars($admin['employee_id']) ?>">
+                                        <button type="submit" name="remove_user" class="btn-remove">
+                                            <i class="fas fa-user"></i> Remove
+                                        </button>
+                                    </form>
+                                </div>
+                            <?php endwhile; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="empty-state">
+                            <i class="fas fa-user-shield"></i>
+                            <p>No admins assigned to this project yet</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <!-- Success/Error Messages -->
