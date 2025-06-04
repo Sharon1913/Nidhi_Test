@@ -170,7 +170,6 @@ $tasks = $stmt->get_result();
 $stmt->close();
 
 // Handle file upload with status update
-// Handle file upload with status update
 $upload_error = $upload_success = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['file'])) {
     $task_id = $_POST['task_id'];
@@ -306,7 +305,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['remarks'])) {
     $stmt->close();
 }
 
-// Fetch uploaded files history
 // Fetch uploaded files history
 $stmt = $conn->prepare("
     SELECT fu.*, t.title as task_title, p.name as project_name 
@@ -1186,6 +1184,76 @@ $stmt->close();
         .tab-content.active {
             display: block;
         }
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            color: #a0aec0; /* Light grey */
+            font-size: 0.875rem;
+            cursor: pointer;
+            margin-top: auto; /* Pushes footer to bottom of main-content */
+        }
+
+        .footer:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* Credits Modal */
+        .credits-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .credits-modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .credits-modal-header {
+            padding: 1.5rem 2rem;
+            background: var(--gradient-1);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .credits-modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .credits-modal-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .credits-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .credits-list li {
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
 
         @media (max-width: 768px) {
             .modal-content {
@@ -1209,6 +1277,10 @@ $stmt->close();
             
             .tab.active {
                 border-bottom: 2px solid var(--primary);
+            }
+
+            .credits-modal-content {
+                width: 95%;
             }
         }
     </style>
@@ -1799,7 +1871,33 @@ $stmt->close();
             </div>
         </div>
     </div>
+        <!-- Footer -->
+        <div class="footer" onclick="showCreditsModal()">
+            Copyright 2025 NMICPS TiHAN Foundation | All Rights Reserved
+        </div>
 
+        <!-- Credits Modal -->
+        <div class="credits-modal" id="creditsModal">
+            <div class="credits-modal-content">
+                <div class="credits-modal-header">
+                    <h2>Project Credits</h2>
+                    <button class="modal-close" onclick="closeCreditsModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="credits-modal-body">
+                    <h3>Team Members</h3>
+                    <ul class="credits-list">
+                        <li>Dr. P. Rajalakshmi</li>
+                        <li>Dr. S. Syam Narayanan</li>
+                        <li>Muhammed Nazim</li>
+                        <li>Sharon Zipporah Sebastain</li>
+                    </ul>
+                    <p>Thank you to our dedicated team for their contributions to this project!</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
 
         // Notification functionality
@@ -2103,6 +2201,17 @@ window.markNotificationAsRead = function(notificationId, button) {
             window.toggleSidebar = function() {
                 const sidebar = document.getElementById('sidebar');
                 sidebar.style.transform = sidebar.style.transform === 'translateX(-100%)' ? 'translateX(0)' : 'translateX(-100%)';
+            };
+
+            // Credits modal functionality
+            window.showCreditsModal = function() {
+                document.getElementById('creditsModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            };
+
+            window.closeCreditsModal = function() {
+                document.getElementById('creditsModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
             };
 
 
