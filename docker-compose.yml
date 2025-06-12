@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  php-apache:
+    build: .
+    container_name: php_website
+    ports:
+      - "8080:80"  # Access via http://localhost:8080
+    volumes:
+      - .:/var/www/html  # Syncs local code into container
+    restart: unless-stopped
