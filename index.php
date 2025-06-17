@@ -3,9 +3,9 @@ session_start();
 
 
 // Database connection
-$host = "localhost";
+$host = "172.17.0.1";
 $user = "root";
-$password = "";
+$password = "your_password";
 $database = "tihan_project_management";
 
 $conn = new mysqli($host, $user, $password, $database);

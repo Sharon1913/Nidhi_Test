@@ -15,11 +15,11 @@ if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'user' || !isset($_SESSI
     exit;
 }
 
-$conn = new mysqli("localhost", "root", "", "tihan_project_management");
+$conn = new mysqli("172.17.0.1", "root", "your_password", "tihan_project_management");
 if ($conn->connect_error) {
     error_log("Connection failed: " . $conn->connect_error, 0);
     die("Connection failed: " . $conn->connect_error);
-}
+}  
 
 $employee_id = $_SESSION['employee_id'];
 
@@ -43,12 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     $stmt->close();
     exit();
-}
-
-$conn = new mysqli("localhost", "root", "", "tihan_project_management");
-if ($conn->connect_error) {
-    error_log("Connection failed: " . $conn->connect_error, 0); // Log the error
-    die("Connection failed: " . $conn->connect_error);
 }
 
 $email = $_SESSION['email'];
@@ -100,7 +94,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
     }
     
     if (!$profile_error) {
-        // Prepare the update query with proper binding
         $stmt = $conn->prepare("UPDATE users SET first_name = ?, last_name = ?, profile_picture = ?, is_profile_updated = 1 WHERE employee_id = ? AND email = ?");
         $stmt->bind_param("sssss", $first_name, $last_name, $new_profile_picture, $employee_id, $email);
         if ($stmt->execute()) {
@@ -126,7 +119,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['change_password'])) {
     $new_password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
     
-    // Verify current password
     $stmt = $conn->prepare("SELECT password FROM users WHERE employee_id = ?");
     $stmt->bind_param("s", $employee_id);
     $stmt->execute();
@@ -176,9 +168,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['upload_type'])) {
     $task_status = $_POST['task_status'];
     $file_description = $upload_type === 'other' ? trim($_POST['file_description']) : null;
     $drive_link = isset($_POST['drive_link']) ? trim($_POST['drive_link']) : null;
-    $file_path = null; // Initialize file_path as NULL
+    $file_path = null;
 
-    // Validate upload type
     $valid_upload_types = ['weekly_report', 'monthly_report', 'other', 'final_project'];
     if (!in_array($upload_type, $valid_upload_types)) {
         $upload_error = "Invalid upload type.";
@@ -214,44 +205,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['upload_type'])) {
             $stmt->bind_param("isssss", $task_id, $employee_id, $file_path, $drive_link, $upload_type, $file_description);
             if ($stmt->execute()) {
                 $upload_success = $upload_type === 'final_project' ? "File uploaded successfully." : "Drive link submitted successfully.";
-                
-                // Update task status
-                $stmt = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
-                $stmt->bind_param("si", $task_status, $task_id);
-                $stmt->execute();
-
-                // Create notification for admin if task is marked as completed
-                if ($task_status == 'completed') {
-                    $stmt = $conn->prepare("SELECT project_id FROM tasks WHERE id = ?");
-                    $stmt->bind_param("i", $task_id);
-                    $stmt->execute();
-                    $result = $stmt->get_result()->fetch_assoc();
-                    $project_id = $result['project_id'];
-
-                    $message = "Task ID {$task_id} marked as completed by {$employee_id}. Please verify.";
-                    $stmt = $conn->prepare("INSERT INTO notifications (recipient_role, project_id, task_id, message, uploaded_at) VALUES ('admin', ?, ?, ?, NOW())");
-                    $stmt->bind_param("iis", $project_id, $task_id, $message);
-                    $stmt->execute();
-                }
+                error_log("Upload saved: task_id=$task_id, employee_id=$employee_id, file_path=$file_path, drive_link=$drive_link, upload_type=$upload_type, file_description=$file_description");
             } else {
                 $upload_error = "Failed to save to database: " . $stmt->error;
+                error_log("Upload failed: " . $stmt->error);
             }
+            
+            $stmt = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
+            $stmt->bind_param("si", $task_status, $task_id);
+            $stmt->execute();
+
+            $stmt = $conn->prepare("SELECT project_id FROM tasks WHERE id = ?");
+            $stmt->bind_param("i", $task_id);
+            $stmt->execute();
+            $result = $stmt->get_result()->fetch_assoc();
+            $project_id = $result['project_id'];
+
+            $message = "New upload for Task ID {$task_id} by {$employee_id} (Status: " . ucfirst($task_status) . "). Please review.";
+            $stmt = $conn->prepare("INSERT INTO notifications (recipient_role, project_id, task_id, message, uploaded_at) VALUES ('admin', ?, ?, ?, NOW())");
+            $stmt->bind_param("iis", $project_id, $task_id, $message);
+            $stmt->execute();
             $stmt->close();
         }
     }
 }
-
-// Fetch uploaded files history
-$stmt = $conn->prepare("SELECT fu.*, t.title as task_title, p.name as project_name 
-                        FROM file_uploads fu 
-                        JOIN tasks t ON fu.task_id = t.id 
-                        JOIN projects p ON t.project_id = p.id 
-                        WHERE fu.employee_id = ? 
-                        ORDER BY fu.uploaded_at DESC");
-$stmt->bind_param("s", $employee_id);
-$stmt->execute();
-$upload_history = $stmt->get_result();
-$stmt->close();
 
 // Fetch projects and tasks
 $stmt = $conn->prepare("SELECT p.* FROM projects p JOIN project_assignments pa ON p.id = pa.project_id WHERE pa.employee_id = ?");
@@ -316,13 +293,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['remarks'])) {
     $stmt->close();
 }
 
-// Fetch uploaded files history
+// Fetch uploaded files history (removed status filter to show all uploads)
 $stmt = $conn->prepare("
     SELECT fu.*, t.title as task_title, p.name as project_name 
     FROM file_uploads fu 
     JOIN tasks t ON fu.task_id = t.id 
     JOIN projects p ON t.project_id = p.id 
-    WHERE fu.employee_id = ? AND t.status = 'completed'
+    WHERE fu.employee_id = ? 
     ORDER BY fu.uploaded_at DESC");
 $stmt->bind_param("s", $employee_id);
 $stmt->execute();
@@ -577,63 +554,63 @@ $stmt->close();
             </div>
         </div>
 
-      <!-- Content -->
+        <!-- Content -->
         <div class="content">
             <!-- Dashboard Section -->
             <div id="dashboard-section" class="content-section fade-in">
-            <div class="stats-grid">
-    <div class="stat-card slide-up" onclick="showTasks('all')">
-        <div class="stat-header">
-            <div class="stat-icon">
-                <i class="fas fa-tasks"></i>
-            </div>
-        </div>
-        <div class="stat-number"><?php echo $total_tasks; ?></div>
-        <div class="stat-label">Total Tasks</div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: 100%;"></div>
-        </div>
-    </div>
-    
-    <div class="stat-card success slide-up" style="animation-delay: 0.1s;" onclick="showCompletedUploads()">
-        <div class="stat-header">
-            <div class="stat-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-        </div>
-        <div class="stat-number"><?php echo $completed_tasks; ?></div>
-        <div class="stat-label">Completed</div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: <?php echo $total_tasks > 0 ? ($completed_tasks / $total_tasks) * 100 : 0; ?>%;"></div>
-        </div>
-    </div>
-    
-    <div class="stat-card warning slide-up" style="animation-delay: 0.2s;" onclick="showTasks('pending')">
-        <div class="stat-header">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-        </div>
-        <div class="stat-number"><?php echo $pending_tasks; ?></div>
-        <div class="stat-label">Pending</div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: <?php echo $total_tasks > 0 ? ($pending_tasks / $total_tasks) * 100 : 0; ?>%;"></div>
-        </div>
-    </div>
-    
-    <div class="stat-card danger slide-up" style="animation-delay: 0.3s;" onclick="showTasks('delayed')">
-        <div class="stat-header">
-            <div class="stat-icon">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-        </div>
-        <div class="stat-number"><?php echo $delayed_tasks; ?></div>
-        <div class="stat-label">Delayed</div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: <?php echo $total_tasks > 0 ? ($delayed_tasks / $total_tasks) * 100 : 0; ?>%; background: linear-gradient(135deg, #ff6b6b, #ee5a52);"></div>
-        </div>
-    </div>
-</div>
+                <div class="stats-grid">
+                    <div class="stat-card slide-up" onclick="showTasks('all')">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                        </div>
+                        <div class="stat-number"><?php echo $total_tasks; ?></div>
+                        <div class="stat-label">Total Tasks</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card success slide-up" style="animation-delay: 0.1s;" onclick="showCompletedUploads()">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="stat-number"><?php echo $completed_tasks; ?></div>
+                        <div class="stat-label">Completed</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: <?php echo $total_tasks > 0 ? ($completed_tasks / $total_tasks) * 100 : 0; ?>%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card warning slide-up" style="animation-delay: 0.2s;" onclick="showTasks('pending')">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="stat-number"><?php echo $pending_tasks; ?></div>
+                        <div class="stat-label">Pending</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: <?php echo $total_tasks > 0 ? ($pending_tasks / $total_tasks) * 100 : 0; ?>%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card danger slide-up" style="animation-delay: 0.3s;" onclick="showTasks('delayed')">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                        <div class="stat-number"><?php echo $delayed_tasks; ?></div>
+                        <div class="stat-label">Delayed</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: <?php echo $total_tasks > 0 ? ($delayed_tasks / $total_tasks) * 100 : 0; ?>%; background: linear-gradient(135deg, #ff6b6b, #ee5a52);"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- Projects Section -->
             <div id="projects-section" class="content-section" style="display: none;">
@@ -916,8 +893,10 @@ $stmt->close();
                                                 <td>
                                                     <?php if ($upload['drive_link']) { ?>
                                                         <a href="<?php echo htmlspecialchars($upload['drive_link']); ?>" target="_blank">View Drive Link</a>
-                                                    <?php } else { ?>
+                                                    <?php } elseif ($upload['file_path']) { ?>
                                                         <?php echo htmlspecialchars(basename($upload['file_path'])); ?>
+                                                    <?php } else { ?>
+                                                        -
                                                     <?php } ?>
                                                 </td>
                                                 <td><?php echo ucfirst(str_replace('_', ' ', $upload['upload_type'])); ?></td>
@@ -926,8 +905,10 @@ $stmt->close();
                                                 <td>
                                                     <?php if ($upload['drive_link']) { ?>
                                                         <a href="<?php echo htmlspecialchars($upload['drive_link']); ?>" class="btn-view" style="padding: 0.5rem 1rem;" target="_blank">View</a>
-                                                    <?php } else { ?>
+                                                    <?php } elseif ($upload['file_path']) { ?>
                                                         <a href="<?php echo htmlspecialchars($upload['file_path']); ?>" class="btn-view" style="padding: 0.5rem 1rem;" download>Download</a>
+                                                    <?php } else { ?>
+                                                        -
                                                     <?php } ?>
                                                 </td>
                                             </tr>
@@ -951,35 +932,34 @@ $stmt->close();
         © Copyright 2025 NMICPS TiHAN Foundation | All Rights Reserved
     </div>
 
-    <!-- Credits Modal -->
-    <div class="credits-modal" id="creditsModal">
-        <div class="credits-modal-content">
-            <div class="credits-modal-header">
-                <h2>Project Credits</h2>
-                <button class="modal-close" onclick="closeCreditsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="credits-modal-body">
-                <h3>Team Members</h3>
-                <ul class="credits-list">
-                    <li>Dr. P. Rajalakshmi</li>
-                    <li>Dr. S. Syam Narayanan</li>
-                    <li>Muhammed Nazim</li>
-                    <li>Sharon Zipporah Sebastain</li>
-                </ul>
-                <p>Thank you to our dedicated team for their contributions to this project!</p>
+        <!-- Credits Modal -->
+        <div class="credits-modal" id="creditsModal">
+            <div class="credits-modal-content">
+                <div class="credits-modal-header">
+                    <h2>Project Contributors</h2>
+                    <button class="modal-close" onclick="closeCreditsModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="credits-modal-body">
+                    <h3>Project Contributors</h3>
+                    <ul class="credits-list">
+                        <li>Dr. P. Rajalakshmi <span class="role">Project Director</span></li>
+                        <li>Dr. S. Syam Narayanan <span class="role">Hub Technical Officer</span></li>
+                        <li>Sharon Zipporah Sebastian</li>
+                        <li>Muhammed Nazim</li>
+                    </ul>
+                    <p>This project represents the collaborative efforts and professional excellence of our multidisciplinary team.</p>
+                <!-- </div> -->
             </div>
         </div>
     </div>
-</div>
 <script>
 // Notification functionality
 window.toggleNotifications = function() {
     const dropdown = document.getElementById('notificationDropdown');
     dropdown.classList.toggle('active');
     
-    // Mark all notifications as viewed when dropdown is opened (optional, can remove if only using OK button)
     if (dropdown.classList.contains('active')) {
         fetch('user_dashboard.php', {
             method: 'POST',
@@ -993,7 +973,7 @@ window.markNotificationAsRead = function(notificationId, button) {
     fetch('user_dashboard.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `action=mark_single_notification_read&notification_id=${notificationId}`
+        body: `action=mark_single_notification_read¬ification_id=${notificationId}`
     })
     .then(response => {
         if (!response.ok) {
@@ -1003,11 +983,9 @@ window.markNotificationAsRead = function(notificationId, button) {
     })
     .then(data => {
         if (data.success) {
-            // Remove notification from UI
             const notificationItem = document.querySelector(`.notification-item`);
             if (notificationItem) notificationItem.remove();
             
-            // Update notification count
             const countElement = document.querySelector('.notification-count');
             let count = parseInt(countElement?.textContent || '0') - 1;
             if (count > 0) {
@@ -1016,7 +994,6 @@ window.markNotificationAsRead = function(notificationId, button) {
                 countElement?.remove();
             }
             
-            // Show empty state if no notifications left
             const dropdown = document.getElementById('notificationDropdown');
             if (!dropdown.querySelector('.notification-item')) {
                 dropdown.innerHTML = `
@@ -1026,7 +1003,6 @@ window.markNotificationAsRead = function(notificationId, button) {
                     </div>
                 `;
             }
-            // Close the dropdown
             dropdown.classList.remove('active');
         } else {
             alert('Error processing action. Please try again.');
@@ -1044,51 +1020,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const sections = document.querySelectorAll('.content-section');
 
     function showSection(sectionId) {
-        // Hide all sections
         sections.forEach(section => section.style.display = 'none');
-        // Remove active class from all links
         navLinks.forEach(link => link.classList.remove('active'));
         
-        // Show target section
         const targetSection = document.getElementById(sectionId + '-section');
         if (targetSection) {
             targetSection.style.display = 'block';
             targetSection.classList.add('fade-in');
         }
         
-        // Activate corresponding nav link
         const targetLink = document.querySelector(`.nav-link[data-section="${sectionId}"]`);
         if (targetLink) {
             targetLink.classList.add('active');
         }
     }
 
-    // Navigation click handler
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             const sectionId = this.getAttribute('data-section');
             showSection(sectionId);
-            // Reset task filter when navigating via sidebar
             if (sectionId === 'tasks') {
                 renderTasks('all');
             }
         });
     });
 
-    // Function to render tasks with filter
     window.renderTasks = function(filter) {
         const tbody = document.getElementById('tasks-table-body');
         const filterLabel = document.getElementById('task-filter-label');
         if (!tbody || !window.allTasks) return;
 
-        // Update filter label
         filterLabel.textContent = filter === 'all' ? '' : ` - ${filter.charAt(0).toUpperCase() + filter.slice(1)}`;
 
-        // Filter tasks
         const filteredTasks = filter === 'all' ? window.allTasks : window.allTasks.filter(task => task.status === filter);
         
-        // Clear table
         tbody.innerHTML = '';
 
         if (filteredTasks.length > 0) {
@@ -1117,23 +1083,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Function to show tasks with filter
     window.showTasks = function(filter) {
         showSection('tasks');
         renderTasks(filter);
     };
 
-    // Function to show completed uploads
     window.showCompletedUploads = function() {
         showSection('history');
     };
 
-    // Initial render of tasks if tasks section is active
     if (document.getElementById('tasks-section').style.display === 'block') {
         renderTasks('all');
     }
             
-    // File upload and drive link functionality
     const uploadType = document.getElementById('upload_type');
     const fileDescriptionGroup = document.getElementById('file_description_group');
     const fileDescription = document.getElementById('file_description');
@@ -1164,7 +1126,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // File input change handler
     fileInput.addEventListener('change', function() {
         const fileName = this.files[0]?.name;
         if (fileName) {
@@ -1173,26 +1134,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Form submission handlers
-document.getElementById('uploadForm').addEventListener('submit', function(e) {
-    const btn = document.getElementById('uploadBtn');
-    const btnText = btn.querySelector('.btn-text');
-    const loading = btn.querySelector('.loading');
-    
-    btnText.style.display = 'none';
-    loading.style.display = 'flex';
-    btn.disabled = true;
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        const btn = document.getElementById('uploadBtn');
+        const btnText = btn.querySelector('.btn-text');
+        const loading = btn.querySelector('.loading');
+        
+        btnText.style.display = 'none';
+        loading.style.display = 'flex';
+        btn.disabled = true;
 
-    // Reset form after submission
-    setTimeout(() => {
-        this.reset();
-        document.querySelector('.file-upload-text').textContent = 'Click to upload or drag and drop';
-        document.querySelector('.file-upload-icon').innerHTML = '<i class="fas fa-cloud-upload-alt"></i>';
-        btnText.style.display = 'inline-flex';
-        loading.style.display = 'none';
-        btn.disabled = false;
-    }, 1000); // Adjust timing as needed
-});
+        setTimeout(() => {
+            this.reset();
+            document.querySelector('.file-upload-text').textContent = 'Click to upload or drag and drop';
+            document.querySelector('.file-upload-icon').innerHTML = '<i class="fas fa-cloud-upload-alt"></i>';
+            btnText.style.display = 'inline-flex';
+            loading.style.display = 'none';
+            btn.disabled = false;
+        }, 1000);
+    });
     
     document.getElementById('remarksForm').addEventListener('submit', function(e) {
         const btn = document.getElementById('remarksBtn');
@@ -1204,7 +1163,6 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
         btn.disabled = true;
     });
     
-    // Drag and drop file upload
     const uploadArea = document.querySelector('.file-upload-area');
     
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -1233,7 +1191,6 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
         }
     });
 
-    // Profile JavaScript
     window.showProfileModal = function() {
         const modal = document.getElementById('profileModal');
         modal.style.display = 'flex';
@@ -1297,13 +1254,11 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
         btn.disabled = true;
     });
     
-    // Sidebar toggle for mobile
     window.toggleSidebar = function() {
         const sidebar = document.getElementById('sidebar');
         sidebar.style.transform = sidebar.style.transform === 'translateX(-100%)' ? 'translateX(0)' : 'translateX(-100%)';
     };
 
-    // Credits modal functionality
     window.showCreditsModal = function() {
         document.getElementById('creditsModal').style.display = 'flex';
         document.body.style.overflow = 'hidden';
@@ -1314,7 +1269,6 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
         document.body.style.overflow = 'auto';
     };
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('notificationDropdown');
         const icon = document.querySelector('.notification-icon');
