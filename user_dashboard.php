@@ -15,7 +15,7 @@ if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'user' || !isset($_SESSI
     exit;
 }
 
-$conn = new mysqli("172.17.0.1", "root", "your_password", "tihan_project_management");
+$conn = new mysqli("mysql", "root", "my-secret-pw", "tihan_project_management");
 if ($conn->connect_error) {
     error_log("Connection failed: " . $conn->connect_error, 0);
     die("Connection failed: " . $conn->connect_error);
