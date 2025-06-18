@@ -5,11 +5,6 @@ pipeline {
         pollSCM('H/5 * * * *') // every 5 min check
     }
 
-    stage('Initialize'){
-        def dockerHome = tool 'myDocker'
-        env.PATH = "${dockerHome}/bin:${env.PATH}"
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -23,6 +18,12 @@ pipeline {
                 echo 'Stopping running containers...'
                 sh 'docker-compose down || true'
             }
+        }
+
+        
+        stage('Initialize'){
+            def dockerHome = tool 'myDocker'
+            env.PATH = "${dockerHome}/bin:${env.PATH}"
         }
 
         stage('Build nidhi Image') {
