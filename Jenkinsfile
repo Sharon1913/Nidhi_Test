@@ -5,6 +5,11 @@ pipeline {
         pollSCM('H/5 * * * *') // every 5 min check
     }
 
+    stage('Initialize'){
+        def dockerHome = tool 'myDocker'
+        env.PATH = "${dockerHome}/bin:${env.PATH}"
+    }
+
     stages {
         stage('Checkout') {
             steps {
