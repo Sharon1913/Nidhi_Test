@@ -9,7 +9,7 @@ pipeline {
         // MySQL credentials (should match your docker-compose.yml)
         MYSQL_ROOT_PASSWORD = 'my-secret-pw'
         // Docker compose project name for better isolation
-        COMPOSE_PROJECT_NAME = 'nidhi-app'
+        COMPOSE_PROJECT_NAME = 'nidhi'
     }
 
     stages {
@@ -20,8 +20,8 @@ pipeline {
                     // Ensure we're on the correct branch and pull latest
                     sh '''
                         git fetch origin
-                        git checkout rel-code
-                        git pull origin rel-code
+                        git checkout main
+                        git pull origin main
                     '''
                 }
             }
