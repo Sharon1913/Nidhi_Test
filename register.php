@@ -103,7 +103,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             align-items: center;
             justify-content: center;
             position: relative;
+<<<<<<< HEAD
             overflow: hidden;
+=======
+            overflow: auto;
+>>>>>>> origin/rel-code
         }
 
         /* Animated background */

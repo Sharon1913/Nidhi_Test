@@ -8,9 +8,14 @@ if (!isset($_SESSION['employee_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
+<<<<<<< HEAD
 // Get project ID and employee ID from URL parameters
 $project_id = isset($_GET['project_id']) ? intval($_GET['project_id']) : 0;
 $employee_id = isset($_GET['employee_id']) ? $_GET['employee_id'] : '';
+=======
+// Get project ID from URL parameters
+$project_id = isset($_GET['project_id']) ? intval($_GET['project_id']) : 0;
+>>>>>>> origin/rel-code
 
 // Initialize variables
 $success_message = '';
@@ -25,7 +30,11 @@ while ($project = mysqli_fetch_assoc($projects_result)) {
     $projects[] = $project;
 }
 
+<<<<<<< HEAD
 // Fetch all employees for dropdown
+=======
+// Fetch all employees for checkbox list
+>>>>>>> origin/rel-code
 $employees_query = "SELECT employee_id, email FROM users WHERE role = 'user' ORDER BY email";
 $employees_result = mysqli_query($conn, $employees_query);
 while ($employee = mysqli_fetch_assoc($employees_result)) {
@@ -48,12 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $task_title = trim($_POST['task_title']);
     $task_description = trim($_POST['task_description']);
     $task_project_id = intval($_POST['project_id']);
+<<<<<<< HEAD
     $task_employee_id = trim($_POST['employee_id']);
+=======
+    $task_employee_ids = isset($_POST['employee_ids']) ? $_POST['employee_ids'] : [];
+>>>>>>> origin/rel-code
     $due_date = $_POST['due_date'];
     $priority = $_POST['priority'];
     $remarks = trim($_POST['remarks']);
     
     // Validation
+<<<<<<< HEAD
     if (empty($task_title) || empty($task_description) || $task_project_id == 0 || empty($task_employee_id) || empty($due_date)) {
         $error_message = "Please fill in all required fields.";
     } else {
@@ -87,6 +101,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!$employee_id) $task_employee_id = '';
         } else {
             $error_message = "Error assigning task: " . mysqli_error($conn);
+=======
+    if (empty($task_title) || empty($task_description) || $task_project_id == 0 || empty($task_employee_ids) || empty($due_date)) {
+        $error_message = "Please fill in all required fields and select at least one employee.";
+    } else {
+        $all_success = true;
+        foreach ($task_employee_ids as $task_employee_id) {
+            // Verify employee exists and is assigned to project
+            $verify_assignment = "SELECT COUNT(*) as count FROM project_assignments WHERE project_id = ? AND employee_id = ?";
+            $stmt = mysqli_prepare($conn, $verify_assignment);
+            mysqli_stmt_bind_param($stmt, "is", $task_project_id, $task_employee_id);
+            mysqli_stmt_execute($stmt);
+            $verify_result = mysqli_stmt_get_result($stmt);
+            $assignment_check = mysqli_fetch_assoc($verify_result);
+            
+            if ($assignment_check['count'] == 0) {
+                // Auto-assign employee to project if not already assigned
+                $assign_query = "INSERT INTO project_assignments (project_id, employee_id, assigned_at) VALUES (?, ?, NOW())";
+                $stmt = mysqli_prepare($conn, $assign_query);
+                mysqli_stmt_bind_param($stmt, "is", $task_project_id, $task_employee_id);
+                mysqli_stmt_execute($stmt);
+            }
+            
+            // Insert task
+            $insert_query = "INSERT INTO tasks (title, description, project_id, employee_id, due_date, priority, status, assigned_date, remarks, created_at) 
+                            VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW(), ?, NOW())";
+            $stmt = mysqli_prepare($conn, $insert_query);
+            mysqli_stmt_bind_param($stmt, "ssissss", $task_title, $task_description, $task_project_id, $task_employee_id, $due_date, $priority, $remarks);
+            
+            if (!mysqli_stmt_execute($stmt)) {
+                $all_success = false;
+                $error_message = "Error assigning task to employee ID $task_employee_id: " . mysqli_error($conn);
+                break;
+            }
+        }
+        
+        if ($all_success) {
+            $success_message = "Task assigned successfully to all selected employees!";
+            // Clear form data
+            $task_title = $task_description = $due_date = $priority = $remarks = '';
+            if (!$project_id) $task_project_id = 0;
+            $task_employee_ids = [];
+>>>>>>> origin/rel-code
         }
     }
 }
@@ -107,6 +163,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             padding: 2rem;
         }
         
+<<<<<<< HEAD
+=======
+        body {
+            overflow: scroll;
+        }
+        
+>>>>>>> origin/rel-code
         .form-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -157,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-bottom: 1.5rem;
         }
         
+<<<<<<< HEAD
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
@@ -165,6 +229,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-size: 0.9rem;
         }
         
+=======
+>>>>>>> origin/rel-code
         .required {
             color: #e53e3e;
         }
@@ -200,6 +266,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             gap: 1rem;
         }
         
+<<<<<<< HEAD
+=======
+        .employee-checkboxes {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            background: white;
+        }
+        
+        .employee-checkboxes label {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #2d3748;
+        }
+        
+        .employee-checkboxes input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+        
+        .employee-checkboxes label:hover {
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+>>>>>>> origin/rel-code
         .priority-options {
             display: flex;
             gap: 1rem;
@@ -372,7 +468,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="form-container">
                 <div class="form-header">
                     <h1><i class="fas fa-plus-circle"></i> Assign New Task</h1>
+<<<<<<< HEAD
                     <p>Create and assign a task to a team member</p>
+=======
+                    <p>Create and assign a task to team members</p>
+>>>>>>> origin/rel-code
                 </div>
 
                 <?php if ($selected_project): ?>
@@ -426,6 +526,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
 
                         <div class="form-group">
+<<<<<<< HEAD
                             <label for="employee_id">Assign To <span class="required">*</span></label>
                             <select id="employee_id" name="employee_id" class="form-control" required>
                                 <option value="">Select Employee</option>
@@ -436,6 +537,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+=======
+                            <label>Assign To <span class="required">*</span></label>
+                            <div class="employee-checkboxes">
+                                <?php foreach ($employees as $emp): ?>
+                                    <label>
+                                        <input type="checkbox" name="employee_ids[]" value="<?= $emp['employee_id'] ?>" 
+                                               <?= (isset($task_employee_ids) && in_array($emp['employee_id'], $task_employee_ids)) ? 'checked' : '' ?>>
+                                        <?= htmlspecialchars($emp['email']) ?>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+>>>>>>> origin/rel-code
                         </div>
                     </div>
 
@@ -501,15 +614,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <script>
+<<<<<<< HEAD
         // Auto-populate employee info when selected
         document.getElementById('employee_id').addEventListener('change', function() {
             const selectedEmail = this.options[this.selectedIndex].text;
+=======
+        // Update employee info when checkboxes are changed
+        function updateEmployeeInfo() {
+            const checkboxes = document.querySelectorAll('.employee-checkboxes input[type="checkbox"]:checked');
+            const selectedEmails = Array.from(checkboxes).map(cb => cb.parentNode.textContent.trim());
+>>>>>>> origin/rel-code
             const existingInfo = document.querySelector('.employee-info');
             
             if (existingInfo) {
                 existingInfo.remove();
             }
             
+<<<<<<< HEAD
             if (this.value) {
                 const infoDiv = document.createElement('div');
                 infoDiv.className = 'employee-info';
@@ -518,6 +639,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         });
 
+=======
+            if (selectedEmails.length > 0) {
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'employee-info';
+                infoDiv.innerHTML = `<i class="fas fa-users"></i> Selected: ${selectedEmails.join(', ')}`;
+                document.querySelector('.employee-checkboxes').parentNode.appendChild(infoDiv);
+            }
+        }
+
+        // Add event listeners to all checkboxes
+        document.querySelectorAll('.employee-checkboxes input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updateEmployeeInfo);
+        });
+
+        // Initial update of employee info
+        updateEmployeeInfo();
+
+>>>>>>> origin/rel-code
         // Set minimum date to today
         document.getElementById('due_date').min = new Date().toISOString().split('T')[0];
 
@@ -526,6 +665,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             const dueDate = new Date(document.getElementById('due_date').value);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
+<<<<<<< HEAD
+=======
+            const checkedEmployees = document.querySelectorAll('.employee-checkboxes input[type="checkbox"]:checked');
+            
+            if (checkedEmployees.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one employee.');
+                return false;
+            }
+>>>>>>> origin/rel-code
             
             if (dueDate < today) {
                 e.preventDefault();

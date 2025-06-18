@@ -2,9 +2,9 @@
 session_start();
 require_once 'db.php';
 
-// Check if user is logged in and is admin
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: index.php");
+// Check if user is logged in and is superadmin
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'superadmin') {
+    header("Location: index.php?error=unauthorized");
     exit();
 }
 
@@ -14,11 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $category = mysqli_real_escape_string($conn, $_POST['category']);
     $due_date = mysqli_real_escape_string($conn, $_POST['due_date']);
-<<<<<<< HEAD
     $status = 'active'; // Default status
-=======
-    $status = 'pending'; // Default status
->>>>>>> origin/rel-code
     
     $query = "INSERT INTO projects (name, description, category, due_date, status, created_at) 
               VALUES (?, ?, ?, ?, ?, NOW())";
@@ -27,11 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     mysqli_stmt_bind_param($stmt, "sssss", $name, $description, $category, $due_date, $status);
     
     if (mysqli_stmt_execute($stmt)) {
-        header("Location: admin_dashboard.php?success=Project added successfully");
+        header("Location: superadmin_dashboard.php?success=Project added successfully");
         exit();
     } else {
         $error = "Error adding project: " . mysqli_error($conn);
     }
+    mysqli_stmt_close($stmt);
 }
 
 // Get type from URL parameter if set
@@ -43,7 +40,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Project - Admin Dashboard</title>
+    <title>Add Project - Super Admin Dashboard</title>
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -162,7 +159,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
             <div class="header-content">
                 <h1><i class="fas fa-plus"></i> Add New Project</h1>
                 <div class="header-actions">
-                    <a href="admin_dashboard.php" class="btn btn-secondary">
+                    <a href="superadmin_dashboard.php" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </a>
                     <a href="admin_logout.php" class="btn btn-logout">
@@ -173,13 +170,13 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
         </header>
 
         <div class="form-container">
-            <a href="admin_dashboard.php" class="back-button">
+            <a href="superadmin_dashboard.php" class="back-button">
                 <i class="fas fa-arrow-left"></i> Back to Dashboard
             </a>
 
             <?php if (isset($error)): ?>
                 <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i> <?= $error ?>
+                    <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
 
@@ -209,7 +206,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
                 </div>
 
                 <div class="form-actions">
-                    <a href="admin_dashboard.php" class="btn btn-secondary">
+                    <a href="superadmin_dashboard.php" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Cancel
                     </a>
                     <button type="submit" class="btn btn-primary">

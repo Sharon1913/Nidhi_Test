@@ -32,9 +32,54 @@ body {
     background: var(--light);
     color: var(--dark);
     line-height: 1.6;
+<<<<<<< HEAD
     overflow-x: hidden;
 }
 
+=======
+    overflow: hidden;
+}
+/* Ensure the body takes up the full viewport height and uses flexbox */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main content should take up the remaining space */
+.main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    background: var(--light);
+    display: flex; /* Use flexbox to layout children */
+    flex-direction: column; /* Stack children vertically */
+    flex: 1; /* Allow main-content to grow and fill space */
+}
+
+/* Content should take available space but not push the footer */
+.content {
+    flex: 1; /* Grow to fill available space, pushing footer to bottom */
+}
+
+/* Footer styling to ensure it sticks to the bottom */
+.footer {
+    text-align: center;
+    padding: 1rem;
+    color: #a0aec0; /* Light grey */
+    font-size: 0.875rem;
+    cursor: pointer;
+    /* Remove margin-top: auto; since we're using flexbox on the parent */
+}
+
+/* Ensure responsiveness for smaller screens */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+>>>>>>> origin/rel-code
 /* Dashboard Container */
 .dashboard-container {
     min-height: 100vh;
@@ -187,7 +232,11 @@ body {
     background: white;
     border-radius: 20px;
     box-shadow: var(--shadow);
+<<<<<<< HEAD
     overflow: hidden;
+=======
+    overflow: auto;
+>>>>>>> origin/rel-code
     transition: all 0.3s ease;
     animation: fadeInUp 0.6s ease-out;
 }
@@ -500,6 +549,10 @@ body {
     
     .project-section {
         min-height: auto;
+<<<<<<< HEAD
+=======
+        overflow: auto;
+>>>>>>> origin/rel-code
     }
     
     .projects-container {

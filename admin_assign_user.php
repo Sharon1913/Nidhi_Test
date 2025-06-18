@@ -131,6 +131,14 @@ $assigned_users_result = mysqli_stmt_get_result($stmt);
             margin: 0 auto;
             padding: 2rem;
         }
+<<<<<<< HEAD
+=======
+
+        body{
+            overflow: scroll;
+            
+        }
+>>>>>>> origin/rel-code
         
         .project-header {
             background: rgba(255, 255, 255, 0.95);

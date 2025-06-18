@@ -16,7 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['assign_user'])) {
     // Check if assignment already exists
     $check_query = "SELECT * FROM project_assignments WHERE employee_id = ? AND project_id = ?";
     $check_stmt = mysqli_prepare($conn, $check_query);
+<<<<<<< HEAD
     mysqli_stmt_bind_param($check_stmt, "si", $user_id, $project_id);
+=======
+    mysqli_stmt_bind_param($check_stmt, "si", $employee_id, $project_id);
+>>>>>>> origin/rel-code
     mysqli_stmt_execute($check_stmt);
     $check_result = mysqli_stmt_get_result($check_stmt);
     
@@ -35,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['assign_user'])) {
     }
 }
 
+<<<<<<< HEAD
 // Fetch all users
 $users_query = "SELECT u.*, COUNT(pa.project_id) as project_count 
                 FROM users u 
@@ -42,6 +47,27 @@ $users_query = "SELECT u.*, COUNT(pa.project_id) as project_count
                 WHERE u.role = 'user' 
                 GROUP BY u.id 
                 ORDER BY u.email";
+=======
+// Handle search for users
+$search_term = '';
+if (isset($_GET['search_user'])) {
+    $search_term = mysqli_real_escape_string($conn, $_GET['search_user']);
+    $users_query = "SELECT u.*, COUNT(pa.project_id) as project_count 
+                    FROM users u 
+                    LEFT JOIN project_assignments pa ON u.employee_id = pa.employee_id 
+                    WHERE u.role = 'user' 
+                    AND u.email LIKE '%$search_term%'
+                    GROUP BY u.id 
+                    ORDER BY u.email";
+} else {
+    $users_query = "SELECT u.*, COUNT(pa.project_id) as project_count 
+                    FROM users u 
+                    LEFT JOIN project_assignments pa ON u.employee_id = pa.employee_id 
+                    WHERE u.role = 'user' 
+                    GROUP BY u.id 
+                    ORDER BY u.email";
+}
+>>>>>>> origin/rel-code
 $users_result = mysqli_query($conn, $users_query);
 
 // Fetch all projects for assignment dropdown
@@ -64,6 +90,7 @@ $projects_result = mysqli_query($conn, $projects_query);
             padding: 2rem;
         }
         
+<<<<<<< HEAD
         .users-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -142,6 +169,32 @@ $projects_result = mysqli_query($conn, $projects_query);
         
         .stat-value {
             font-weight: 600;
+=======
+        body {
+            overflow: auto;
+        }
+
+        .user-list {
+            margin-top: 2rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .user-row {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .user-row:last-child {
+            border-bottom: none;
+        }
+        
+        .user-email {
+            flex: 1;
+>>>>>>> origin/rel-code
             color: #2d3748;
         }
         
@@ -185,6 +238,10 @@ $projects_result = mysqli_query($conn, $projects_query);
             padding: 2rem;
             margin-bottom: 2rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+<<<<<<< HEAD
+=======
+            position: relative;
+>>>>>>> origin/rel-code
         }
         
         .form-row {
@@ -196,6 +253,10 @@ $projects_result = mysqli_query($conn, $projects_query);
         
         .form-group {
             margin-bottom: 0;
+<<<<<<< HEAD
+=======
+            position: relative;
+>>>>>>> origin/rel-code
         }
         
         .form-group label {
@@ -217,7 +278,51 @@ $projects_result = mysqli_query($conn, $projects_query);
         .form-group select:focus {
             outline: none;
             border-color: #667eea;
+<<<<<<< HEAD
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+=======
+            box-shadow: 0 0 0ग3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .searchable-select {
+            position: relative;
+            display: block; /* Ensure it takes the full width and behaves in the flow */
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .select-options {
+            /* Removed absolute positioning to keep it in the document flow */
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            display: none; /* Hidden by default */
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .select-options.show {
+            display: block; /* Show in the normal flow when active */
+        }
+        
+        .select-option {
+            padding: 0.75rem;
+            cursor: pointer;
+        }
+        
+        .select-option:hover {
+            background: #f8f9fa;
+>>>>>>> origin/rel-code
         }
         
         .alert {
@@ -262,6 +367,10 @@ $projects_result = mysqli_query($conn, $projects_query);
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
+<<<<<<< HEAD
+=======
+            margin-top: 1rem; /* Adjusted to avoid excessive spacing */
+>>>>>>> origin/rel-code
         }
         
         .section-header h2 {
@@ -277,6 +386,21 @@ $projects_result = mysqli_query($conn, $projects_query);
             font-size: 0.9rem;
             font-weight: 600;
         }
+<<<<<<< HEAD
+=======
+        
+        .search-form {
+            margin-bottom: 1rem;
+        }
+        
+        .search-form input {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 300px;
+        }
+>>>>>>> origin/rel-code
     </style>
 </head>
 <body>
@@ -319,6 +443,7 @@ $projects_result = mysqli_query($conn, $projects_query);
                     <div class="form-row">
                         <div class="form-group">
                             <label for="employee_id">Select User</label>
+<<<<<<< HEAD
                             <select id="employee_id" name="employee_id" required>
                                 <option value="">Choose User</option>
                                 <?php 
@@ -337,6 +462,36 @@ $projects_result = mysqli_query($conn, $projects_query);
                                     <option value="<?= $project['id'] ?>"><?= htmlspecialchars($project['name']) ?> (<?= $project['category'] ?>)</option>
                                 <?php endwhile; ?>
                             </select>
+=======
+                            <div class="searchable-select">
+                                <input type="text" class="search-input" placeholder="Search users..." id="user-search">
+                                <input type="hidden" name="employee_id" id="employee_id">
+                                <div class="select-options" id="user-options">
+                                    <?php 
+                                    mysqli_data_seek($users_result, 0);
+                                    while($user = mysqli_fetch_assoc($users_result)): 
+                                    ?>
+                                        <div class="select-option" data-value="<?= $user['employee_id'] ?>">
+                                            <?= htmlspecialchars($user['email']) ?>
+                                        </div>
+                                    <?php endwhile; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_id">Select Project</label>
+                            <div class="searchable-select">
+                                <input type="text" class="search-input" placeholder="Search projects..." id="project-search">
+                                <input type="hidden" name="project_id" id="project_id">
+                                <div class="select-options" id="project-options">
+                                    <?php while($project = mysqli_fetch_assoc($projects_result)): ?>
+                                        <div class="select-option" data-value="<?= $project['id'] ?>">
+                                            <?= htmlspecialchars($project['name']) ?> (<?= $project['category'] ?>)
+                                        </div>
+                                    <?php endwhile; ?>
+                                </div>
+                            </div>
+>>>>>>> origin/rel-code
                         </div>
                         <button type="submit" name="assign_user" class="btn btn-primary">
                             <i class="fas fa-plus"></i> Assign
@@ -351,11 +506,25 @@ $projects_result = mysqli_query($conn, $projects_query);
                 <span class="user-count"><?= mysqli_num_rows($users_result) ?> Users</span>
             </div>
 
+<<<<<<< HEAD
             <div class="users-grid">
+=======
+            <div class="search-form">
+                <form method="GET" action="">
+                    <input type="text" name="search_user" placeholder="Search users by email..." value="<?= htmlspecialchars($search_term) ?>">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </form>
+            </div>
+
+            <div class="user-list">
+>>>>>>> origin/rel-code
                 <?php 
                 mysqli_data_seek($users_result, 0);
                 while($user = mysqli_fetch_assoc($users_result)): 
                 ?>
+<<<<<<< HEAD
                     <div class="user-card">
                         <div class="user-header">
                             <div class="user-avatar">
@@ -378,6 +547,10 @@ $projects_result = mysqli_query($conn, $projects_query);
                             </div>
                         </div>
 
+=======
+                    <div class="user-row">
+                        <div class="user-email"><?= htmlspecialchars($user['email']) ?></div>
+>>>>>>> origin/rel-code
                         <div class="user-actions">
                             <a href="admin_user_tasks.php?user_id=<?= $user['id'] ?>" class="btn-small btn-view">
                                 <i class="fas fa-eye"></i> View Tasks
@@ -388,5 +561,74 @@ $projects_result = mysqli_query($conn, $projects_query);
             </div>
         </div>
     </div>
+<<<<<<< HEAD
+=======
+
+    <script>
+        // Searchable dropdown for users
+        const userSearch = document.getElementById('user-search');
+        const userOptions = document.getElementById('user-options');
+        const userInput = document.getElementById('employee_id');
+        const userOptionItems = userOptions.getElementsByClassName('select-option');
+
+        userSearch.addEventListener('focus', () => {
+            userOptions.classList.add('show');
+        });
+
+        userSearch.addEventListener('input', () => {
+            const filter = userSearch.value.toLowerCase();
+            for (let option of userOptionItems) {
+                const text = option.textContent.toLowerCase();
+                option.style.display = text.includes(filter) ? '' : 'none';
+            }
+            userOptions.classList.add('show');
+        });
+
+        for (let option of userOptionItems) {
+            option.addEventListener('click', () => {
+                userSearch.value = option.textContent;
+                userInput.value = option.dataset.value;
+                userOptions.classList.remove('show');
+            });
+        }
+
+        // Searchable dropdown for projects
+        const projectSearch = document.getElementById('project-search');
+        const projectOptions = document.getElementById('project-options');
+        const projectInput = document.getElementById('project_id');
+        const projectOptionItems = projectOptions.getElementsByClassName('select-option');
+
+        projectSearch.addEventListener('focus', () => {
+            projectOptions.classList.add('show');
+        });
+
+        projectSearch.addEventListener('input', () => {
+            const filter = projectSearch.value.toLowerCase();
+            for (let option of projectOptionItems) {
+                const text = option.textContent.toColorCase();
+                option.style.display = text.includes(filter) ? '' : 'none';
+            }
+            projectOptions.classList.add('show');
+        });
+
+        for (let option of projectOptionItems) {
+            option.addEventListener('click', () => {
+                projectSearch.value = option.textContent;
+                projectInput.value = option.dataset.value;
+                projectOptions.classList.remove('show');
+            });
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userSearch.contains(e.target) && !userOptions.contains(e.target)) {
+                userOptions.classList.remove('show');
+            }
+            if (!projectSearch.contains(e.target) && !projectOptions.contains(e.target)) {
+                projectOptions.classList.remove('show');
+            }
+        });
+    </script>
+>>>>>>> origin/rel-code
 </body>
 </html>

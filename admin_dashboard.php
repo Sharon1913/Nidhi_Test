@@ -23,6 +23,7 @@ error_log("Session data: " . print_r($_SESSION, true));
 
 // Handle fetching notifications via AJAX
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'fetch_notifications') {
+<<<<<<< HEAD
     $notifications_query = "SELECT n.id, n.project_id, n.task_id, n.message, n.uploaded_at, 
                            p.name AS project_name, t.title AS task_title, fu.file_path, fu.employee_id
                            FROM notifications n
@@ -31,6 +32,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
                            LEFT JOIN file_uploads fu ON n.task_id = fu.task_id
                            WHERE n.recipient_role = 'admin' AND n.is_read = FALSE
                            ORDER BY n.uploaded_at DESC";
+=======
+    // Use a subquery to get the latest notification for each task_id
+    $notifications_query = "
+        SELECT n.id, n.project_id, n.task_id, n.message, n.uploaded_at, 
+               p.name AS project_name, t.title AS task_title, fu.file_path, fu.drive_link, fu.employee_id
+        FROM notifications n
+        JOIN projects p ON n.project_id = p.id
+        JOIN tasks t ON n.task_id = t.id
+        LEFT JOIN file_uploads fu ON n.task_id = fu.task_id
+        WHERE n.recipient_role = 'admin' AND n.is_read = FALSE
+        AND n.id = (
+            SELECT n2.id
+            FROM notifications n2
+            WHERE n2.task_id = n.task_id
+            AND n2.recipient_role = 'admin' AND n2.is_read = FALSE
+            ORDER BY n2.uploaded_at DESC
+            LIMIT 1
+        )
+        ORDER BY n.uploaded_at DESC";
+>>>>>>> origin/rel-code
     $notifications_result = mysqli_query($conn, $notifications_query);
 
     $notifications = [];
@@ -43,7 +64,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
             'employee_id' => htmlspecialchars($notification['employee_id'] ?? 'N/A'),
             'message' => htmlspecialchars($notification['message']),
             'uploaded_at' => date('M d, Y H:i', strtotime($notification['uploaded_at'])),
+<<<<<<< HEAD
             'file_path' => $notification['file_path'] ? htmlspecialchars($notification['file_path']) : null
+=======
+            'file_path' => $notification['file_path'] ? htmlspecialchars($notification['file_path']) : null,
+            'drive_link' => $notification['drive_link'] ? htmlspecialchars($notification['drive_link']) : null
+>>>>>>> origin/rel-code
         ];
     }
 
@@ -216,6 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     exit();
 }
 
+<<<<<<< HEAD
 // Fetch notifications with file details
 $notifications_query = "SELECT n.id, n.project_id, n.task_id, n.message, n.uploaded_at, 
                        p.name AS project_name, t.title AS task_title, fu.file_path, fu.employee_id
@@ -225,6 +252,26 @@ $notifications_query = "SELECT n.id, n.project_id, n.task_id, n.message, n.uploa
                        LEFT JOIN file_uploads fu ON n.task_id = fu.task_id
                        WHERE n.recipient_role = 'admin' AND n.is_read = FALSE
                        ORDER BY n.uploaded_at DESC";
+=======
+// Fetch notifications with file details (updated to avoid GROUP BY issue)
+$notifications_query = "
+    SELECT n.id, n.project_id, n.task_id, n.message, n.uploaded_at, 
+           p.name AS project_name, t.title AS task_title, fu.file_path, fu.drive_link, fu.employee_id
+    FROM notifications n
+    JOIN projects p ON n.project_id = p.id
+    JOIN tasks t ON n.task_id = t.id
+    LEFT JOIN file_uploads fu ON n.task_id = fu.task_id
+    WHERE n.recipient_role = 'admin' AND n.is_read = FALSE
+    AND n.id = (
+        SELECT n2.id
+        FROM notifications n2
+        WHERE n2.task_id = n.task_id
+        AND n2.recipient_role = 'admin' AND n2.is_read = FALSE
+        ORDER BY n2.uploaded_at DESC
+        LIMIT 1
+    )
+    ORDER BY n.uploaded_at DESC";
+>>>>>>> origin/rel-code
 $notifications_result = mysqli_query($conn, $notifications_query);
 
 // Fetch UGV projects
@@ -264,15 +311,51 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<<<<<<< HEAD
     <style>
         /* Reuse styles from user_dashboard.php */
+=======
+    <link href="https://fonts.cdnfonts.com/css/samarkan?styles=6066" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: auto;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex: 1 0 auto;
+            background: var(--light);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content {
+            flex: 1 0 auto;
+        }
+
+>>>>>>> origin/rel-code
         .sidebar {
             position: fixed;
             left: 0;
             top: 0;
             width: 280px;
             height: 100vh;
+<<<<<<< HEAD
             background: var(--gradient-1);
+=======
+            background: linear-gradient(135deg,rgb(126, 93, 44),rgb(233, 172, 91));
+>>>>>>> origin/rel-code
             padding: 2rem 0;
             z-index: 1000;
             transition: all 0.3s ease;
@@ -467,6 +550,7 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
             gap: 0.5rem;
         }
 
+<<<<<<< HEAD
         .btn-reject, .btn-delete, .btn-block {
             background: linear-gradient(135deg, #ff6b6b, #ee5a52);
             color: white;
@@ -479,6 +563,8 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
             transition: all 0.3s ease;
         }
 
+=======
+>>>>>>> origin/rel-code
         .btn-approve, .btn-reject {
             padding: 0.4rem 0.8rem;
             border-radius: 6px;
@@ -504,15 +590,50 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
+<<<<<<< HEAD
+=======
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--gradient-3);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+>>>>>>> origin/rel-code
         .notification-file {
             display: inline-block;
             color: #3b82f6;
             font-size: 0.8rem;
             text-decoration: none;
             margin-bottom: 0.5rem;
+<<<<<<< HEAD
         }
 
         .notification-file:hover {
+=======
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .notification-file:hover {
+            background: #e0f2fe;
+>>>>>>> origin/rel-code
             text-decoration: underline;
         }
 
@@ -642,6 +763,7 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
             }
         }
 
+<<<<<<< HEAD
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -693,6 +815,199 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
         .content-section {
             padding: 0 2rem;
         }
+=======
+        .footer {
+            flex-shrink: 0;
+            text-align: center;
+            padding-top: 1rem;
+            color: #a0aec0;
+            font-size: 0.875rem;
+            cursor: pointer;
+            margin-top: 26rem;
+        }
+
+        .footer:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+.credits-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.credits-modal-content {
+    background: var(--white);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px; /* Increased width for better layout */
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.4s ease-out;
+}
+
+.credits-modal-header {
+    padding: 1.5rem 2rem;
+    background: var(--gradient-1);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 16px 16px 0 0;
+}
+
+.credits-modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.credits-modal-body {
+    padding: 2rem;
+    text-align: left; /* Changed from center to left for better readability */
+}
+
+.credits-modal-body h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.credits-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+}
+
+.credits-list li {
+    font-size: 1rem;
+    color: var(--dark);
+    margin-bottom: 0.8rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.credits-list li:last-child {
+    border-bottom: none;
+}
+
+.role {
+    color: #666;
+    font-size: 0.85rem;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.credits-modal-body p {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-style: italic;
+    color: #555;
+    line-height: 1.5;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    
+    .sidebar-toggle {
+        display: block;
+    }
+    
+    .credits-modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .credits-modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .credits-modal-body {
+        padding: 1.5rem;
+    }
+    
+    .credits-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-section {
+    padding: 0 2rem;
+}
+>>>>>>> origin/rel-code
     </style>
 </head>
 <body>
@@ -704,8 +1019,13 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                     <img src="assets/images/tihan_logo.webp" alt="TiHAN Logo">
                 </div>
                 <div>
+<<<<<<< HEAD
                     <div style="font-size: 1.25rem;">TiHAN-NIDHI</div>
                     <div style="font-size: 1.25rem;">Admin</div>
+=======
+                    <div style="font-size: 1.65rem; font-family: 'Samarkan', sans-serif; ">NIDHI</div>
+                    <div style="font-size: 1.15rem;">Admin</div>
+>>>>>>> origin/rel-code
                     <div style="font-size: 0.75rem; opacity: 0.8;">Networked Innovation for Development and Holistic Implementation</div>
                 </div>
             </div>
@@ -715,7 +1035,11 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
             <li class="nav-item">
                 <a href="#dashboard" class="nav-link active" data-section="dashboard">
                     <i class="fas fa-home"></i>
+<<<<<<< HEAD
                     <span>Dashboard</span>
+=======
+                    <span>Team Dashboard</span>
+>>>>>>> origin/rel-code
                 </a>
             </li>
             <li class="nav-item">
@@ -737,7 +1061,17 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                 </a>
             </li>
             <li class="nav-item">
+<<<<<<< HEAD
                 <a href="admin_logout.php" class="nav-link">
+=======
+                <a href="admin_upload_history.php" class="nav-link" data-section="upload-history">
+                    <i class="fas fa-history"></i>
+                    <span>Upload History</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="admin_logout.php" class="nav-link" onclick="window.location.href='index.php'; return false;">
+>>>>>>> origin/rel-code
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -757,6 +1091,11 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                 <p>Manage your projects and tasks efficiently.</p>
             </div>
             <div class="header-right">
+<<<<<<< HEAD
+=======
+                <a href="admin_add_project.php" class="btn btn-primary">Add Project</a>
+                <a href="admin_manage_users.php" class="btn btn-secondary">Manage Users</a>
+>>>>>>> origin/rel-code
                 <div class="notification-icon" onclick="toggleNotifications()">
                     <i class="fas fa-bell"></i>
                     <?php if (mysqli_num_rows($notifications_result) > 0): ?>
@@ -783,7 +1122,13 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                             Employee ID: <?= htmlspecialchars($notification['employee_id'] ?? 'N/A') ?><br>
                             <?= htmlspecialchars($notification['message']) ?>
                         </div>
+<<<<<<< HEAD
                         <?php if ($notification['file_path']): ?>
+=======
+                        <?php if ($notification['drive_link']): ?>
+                            <a href="<?= htmlspecialchars($notification['drive_link']) ?>" class="notification-file" target="_blank">View Drive Link</a>
+                        <?php elseif ($notification['file_path']): ?>
+>>>>>>> origin/rel-code
                             <a href="<?= htmlspecialchars($notification['file_path']) ?>" class="notification-file" target="_blank">View Uploaded File</a>
                         <?php endif; ?>
                         <div class="notification-actions">
@@ -954,7 +1299,37 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
 
+=======
+        </div>
+
+        <!-- Footer -->
+        <div class="footer" onclick="showCreditsModal()">
+            © Copyright 2025 NMICPS TiHAN Foundation | All Rights Reserved
+        </div>
+
+        <!-- Credits Modal -->
+        <div class="credits-modal" id="creditsModal">
+            <div class="credits-modal-content">
+                <div class="credits-modal-header">
+                    <h2>Project Contributors</h2>
+                    <button class="modal-close" onclick="closeCreditsModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="credits-modal-body">
+                    <h3>Project Contributors</h3>
+                    <ul class="credits-list">
+                        <li>Dr. P. Rajalakshmi <span class="role">Project Director</span></li>
+                        <li>Dr. S. Syam Narayanan <span class="role">Hub Technical Officer</span></li>
+                        <li>Sharon Zipporah Sebastian</li>
+                        <li>Muhammed Nazim</li>
+                    </ul>
+                    <p>This project represents the collaborative efforts and professional excellence of our multidisciplinary team.</p>
+                </div>
+            </div>
+>>>>>>> origin/rel-code
         </div>
     </div>
 
@@ -999,7 +1374,12 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                                 Employee ID: ${notification.employee_id}<br>
                                 ${notification.message}
                             </div>
+<<<<<<< HEAD
                             ${notification.file_path ? `<a href="${notification.file_path}" class="notification-file" target="_blank">View Uploaded File</a>` : ''}
+=======
+                            ${notification.drive_link ? `<a href="${notification.drive_link}" class="notification-file" target="_blank">View Drive Link</a>` : 
+                              notification.file_path ? `<a href="${notification.file_path}" class="notification-file" target="_blank">View Uploaded File</a>` : ''}
+>>>>>>> origin/rel-code
                             <div class="notification-actions">
                                 <button class="btn-approve" onclick="handleNotificationAction(${notification.id}, 'approve', ${notification.task_id})">Approve</button>
                                 <button class="btn-reject" onclick="handleNotificationAction(${notification.id}, 'reject', ${notification.task_id})">Reject</button>
@@ -1152,6 +1532,19 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
             sidebar.style.transform = sidebar.style.transform === 'translateX(-100%)' ? 'translateX(0)' : 'translateX(-100%)';
         }
 
+<<<<<<< HEAD
+=======
+        // Credits modal functionality
+    window.showCreditsModal = function() {
+        document.getElementById('creditsModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+        window.closeCreditsModal = function() {
+            document.getElementById('creditsModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        };
+            
+>>>>>>> origin/rel-code
         // Close notification dropdown when clicking outside
         document.addEventListener('click', function(e) {
             const dropdown = document.getElementById('notificationDropdown');
