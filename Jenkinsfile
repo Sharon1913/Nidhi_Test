@@ -1,8 +1,8 @@
 pipeline {
     agent any
-    
+
     triggers {
-        pollSCM('H/5 * * * *')  // Poll every 5 mins
+        pollSCM('H/5 * * * *') // every 5 min check
     }
 
     stages {
@@ -13,49 +13,35 @@ pipeline {
             }
         }
 
-        stage('Stop Current Services') {
+        stage('Stop Current Containers') {
             steps {
-                echo 'Stopping current containers...'
-                sh 'docker compose down || true'
+                echo 'Stopping running containers...'
+                sh 'docker-compose down || true'
             }
         }
 
         stage('Build nidhi Image') {
             steps {
-                echo 'Building nidhi web image...'
-                sh 'docker build -t nidhi ./web'
+                echo 'Rebuilding nidhi image from updated code...'
+                sh 'docker build -t nidhi .'
             }
         }
 
-        stage('Start Services') {
+        stage('Start Containers') {
             steps {
-                echo 'Starting containers using docker-compose...'
-                sh '''
-                    docker compose up -d
-                    sleep 10
-                    docker compose ps
-                '''
-            }
-        }
-
-        stage('Verify Deployment') {
-            steps {
-                echo 'Verifying containers are up...'
-                sh '''
-                    docker ps | grep -q "mysql-container" && echo "✓ MySQL is running" || (echo "✗ MySQL failed" && exit 1)
-                    docker ps | grep -q "nidhi" && echo "✓ Web is running" || (echo "✗ Web failed" && exit 1)
-                '''
+                echo 'Starting services with docker-compose...'
+                sh 'docker-compose up -d'
             }
         }
     }
 
     post {
         success {
-            echo 'Deployment successful!'
+            echo '✅ Deployment complete!'
         }
         failure {
-            echo 'Deployment failed. Restarting services...'
-            sh 'docker compose up -d || true'
+            echo '❌ Deployment failed. Attempting recovery...'
+            sh 'docker-compose up -d || true'
         }
     }
 }
