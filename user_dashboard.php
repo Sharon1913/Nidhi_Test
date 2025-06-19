@@ -15,19 +15,11 @@ if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'user' || !isset($_SESSI
     exit;
 }
 
-<<<<<<< HEAD
-$conn = new mysqli("localhost", "root", "", "tihan_project_management");
-if ($conn->connect_error) {
-    error_log("Connection failed: " . $conn->connect_error, 0);
-    die("Connection failed: " . $conn->connect_error);
-}
-=======
 $conn = new mysqli("mysql", "root", "my-secret-pw", "tihan_project_management");
 if ($conn->connect_error) {
     error_log("Connection failed: " . $conn->connect_error, 0);
     die("Connection failed: " . $conn->connect_error);
 }  
->>>>>>> origin/rel-code
 
 $employee_id = $_SESSION['employee_id'];
 
@@ -53,16 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit();
 }
 
-<<<<<<< HEAD
 
-$conn = new mysqli("localhost", "root", "", "tihan_project_management");
+$conn = new mysqli("mysql", "root", "my-secret-pw", "tihan_project_management");
 if ($conn->connect_error) {
     error_log("Connection failed: " . $conn->connect_error, 0); // Log the error
     die("Connection failed: " . $conn->connect_error);
 }
 
-=======
->>>>>>> origin/rel-code
 $email = $_SESSION['email'];
 $employee_id = $_SESSION['employee_id'];
 

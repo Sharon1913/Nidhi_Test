@@ -1,17 +1,10 @@
 <?php
 session_start();
 
-
 // Database connection
-<<<<<<< HEAD
-$host = "localhost";
+$host = "mysql";
 $user = "root";
-$password = "";
-=======
-$host = "172.17.0.1";
-$user = "root";
-$password = "your_password";
->>>>>>> origin/rel-code
+$password = "my-secret-pw";
 $database = "tihan_project_management";
 
 $conn = new mysqli($host, $user, $password, $database);
