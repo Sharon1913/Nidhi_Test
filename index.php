@@ -65,11 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Login - TiHAN Project Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<<<<<<< HEAD
-=======
     <link href="https://fonts.cdnfonts.com/css/samarkan?styles=6066" rel="stylesheet">
                 
->>>>>>> origin/rel-code
     <style>
         :root {
             --primary: #6366f1;
@@ -93,19 +90,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         body {
             font-family: 'Inter', sans-serif;
-<<<<<<< HEAD
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Animated background */
-        .bg-animation {
-=======
             /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
             background-image: url('assets/images/WhatsApp Image 2025-06-03 at 13.01.41_a5cac95a.jpg');
             background-repeat: no-repeat;
@@ -121,7 +105,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         /* Animated background */
         /* .bg-animation {
->>>>>>> origin/rel-code
             position: absolute;
             top: 0;
             left: 0;
@@ -143,11 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 rgba(255,255,255,0.1) 50%, 
                 transparent 70%);
             animation: shimmer 3s infinite;
-<<<<<<< HEAD
-        }
-=======
         } */
->>>>>>> origin/rel-code
 
         @keyframes shimmer {
             0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
@@ -248,19 +227,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.5rem;
-<<<<<<< HEAD
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
-            animation: pulse 2s infinite;
-        }
-        .logo img {
-          width: 100px;
-          height: 50px;
-          object-fit: contain;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.2);
-          padding: 5px;
-      }
-=======
             /* box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); */
             gap: 1rem;
             animation: pulse 2s infinite;
@@ -283,7 +249,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             justify-content: center;
             font-size: 1.5rem;
         }
->>>>>>> origin/rel-code
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
@@ -297,28 +262,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .header-section h1 {
             color: var(--dark);
-<<<<<<< HEAD
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.025em;
-=======
             font-size: 4rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
             letter-spacing: -0.025em;
             font-family: 'Samarkan', sans-serif;
->>>>>>> origin/rel-code
         }
 
         .header-section p {
             color: var(--gray);
             font-size: 1rem;
             font-weight: 400;
-<<<<<<< HEAD
-=======
             font-style: italic;
->>>>>>> origin/rel-code
         }
 
         .form-group {
@@ -502,33 +457,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-<<<<<<< HEAD
-    <div class="bg-animation"></div>
-=======
     <!-- <div class="bg-animation"></div>
->>>>>>> origin/rel-code
     <div class="floating-shapes">
         <div class="shape"></div>
         <div class="shape"></div>
         <div class="shape"></div>
-<<<<<<< HEAD
-    </div>
-=======
     </div> -->
->>>>>>> origin/rel-code
 
     <div class="login-container">
         <div class="header-section">
             <div class="logo">
                 <img src="assets/images/tihan_logo.webp" alt="TiHAN Logo">
             </div>
-<<<<<<< HEAD
-            <h1>TiHAN NIDHI</h1>
-            <p>Sign in to TiHAN Project Management System</p>
-=======
             <h1> NIDHI </h1>
             <p>Project Management System</p>
->>>>>>> origin/rel-code
         </div>
 
         <?php if (!empty($error)) { ?>
