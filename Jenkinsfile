@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        pollSCM('H/5 * * * *') // every 5 min check
+        pollSCM('H/5 * * * *') // Poll SCM every 5 minutes
     }
 
     stages {
@@ -13,19 +13,21 @@ pipeline {
             }
         }
 
+        stage('Verify Docker') {
+            steps {
+                echo 'Verifying Docker installation...'
+                sh 'docker --version'
+                sh 'docker-compose --version'
+            }
+        }
+
         stage('Stop Current Containers') {
             steps {
                 echo 'Stopping running containers...'
                 sh 'docker-compose down || true'
             }
         }
-
-        
-        stage('Initialize'){
-            def dockerHome = tool 'myDocker'
-            env.PATH = "${dockerHome}/bin:${env.PATH}"
-        }
-
+    
         stage('Build nidhi Image') {
             steps {
                 echo 'Rebuilding nidhi image from updated code...'
@@ -39,15 +41,30 @@ pipeline {
                 sh 'docker-compose up -d'
             }
         }
+
+        stage('Health Check') {
+            steps {
+                echo 'Checking container health...'
+                sh 'docker ps'
+                sh 'sleep 10' // Wait for services to start
+                sh 'curl -f http://localhost:8080 || echo "Service not ready yet"'
+            }
+        }
     }
 
     post {
         success {
-            echo '✅ Deployment complete!'
+            echo 'Deployment complete!'
+            sh 'docker ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"'
         }
         failure {
-            echo '❌ Deployment failed. Attempting recovery...'
+            echo 'Deployment failed. Attempting recovery...'
+            sh 'docker-compose logs'
             sh 'docker-compose up -d || true'
+        }
+        always {
+            echo 'Cleaning up unused Docker images...'
+            sh 'docker image prune -f || true'
         }
     }
 }
