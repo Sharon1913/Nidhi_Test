@@ -17,14 +17,14 @@ pipeline {
             steps {
                 echo 'Verifying Docker installation...'
                 sh 'docker --version'
-                sh 'docker-compose --version'
+                sh 'docker compose version'
             }
         }
 
         stage('Stop Current Containers') {
             steps {
                 echo 'Stopping running containers...'
-                sh 'docker-compose down || true'
+                sh 'docker compose down || true'
             }
         }
     
@@ -38,7 +38,7 @@ pipeline {
         stage('Start Containers') {
             steps {
                 echo 'Starting services with docker-compose...'
-                sh 'docker-compose up -d'
+                sh 'docker compose up -d'
             }
         }
 
@@ -54,13 +54,13 @@ pipeline {
 
     post {
         success {
-            echo 'Deployment complete!'
+            echo '✅ Deployment complete!'
             sh 'docker ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"'
         }
         failure {
-            echo 'Deployment failed. Attempting recovery...'
-            sh 'docker-compose logs'
-            sh 'docker-compose up -d || true'
+            echo '❌ Deployment failed. Attempting recovery...'
+            sh 'docker compose logs'
+            sh 'docker compose up -d || true'
         }
         always {
             echo 'Cleaning up unused Docker images...'
