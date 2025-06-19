@@ -97,8 +97,6 @@ if (isset($_GET['revive_admin'])) {
     exit();
 }
 
-<<<<<<< HEAD
-=======
 // Handle password reset for admin or user
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
     $employee_id = $_POST['employee_id'];
@@ -113,7 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
     mysqli_stmt_close($stmt);
 }
 
->>>>>>> origin/rel-code
 // Handle project deletion
 if (isset($_GET['delete_project'])) {
     $project_id = intval($_GET['delete_project']);
@@ -381,10 +378,7 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
     <title>Superadmin Dashboard - Project Management</title>
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<<<<<<< HEAD
-=======
     <link href="https://fonts.cdnfonts.com/css/samarkan?styles=6066" rel="stylesheet">
->>>>>>> origin/rel-code
     <style>
         :root {
             --primary: #6366f1;
@@ -419,15 +413,12 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             line-height: 1.6;
             display: flex;
             min-height: 100vh;
-<<<<<<< HEAD
-=======
             overflow: auto;
         }
         .wrapper {
         display: flex;
         flex-direction: column;
         min-height: 100vh;
->>>>>>> origin/rel-code
         }
 
         /* Sidebar */
@@ -483,21 +474,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             transform: translateX(5px);
         }
 
-<<<<<<< HEAD
-        /* Dashboard Container */
-        .dashboard-container {
-            margin-left: 280px;
-            flex: 1;
-            padding: 2rem;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            min-height: calc(100vh - 200px);
-        }
-=======
 /* Dashboard Main */
 .dashboard-main {
     max-width: 1400px;
@@ -518,7 +494,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
 }
->>>>>>> origin/rel-code
 
         /* Header */
         .dashboard-header {
@@ -553,11 +528,7 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
         }
 
         /* Buttons */
-<<<<<<< HEAD
-        .btn, .btn-primary, .btn-logout, .btn-approve, .btn-reject, .btn-delete, .btn-block, .btn-revive, .btn-view, .btn-convert {
-=======
         .btn, .btn-primary, .btn-logout, .btn-approve, .btn-reject, .btn-delete, .btn-block, .btn-revive, .btn-view, .btn-convert, .btn-reset {
->>>>>>> origin/rel-code
             padding: 0.75rem 1.5rem;
             border-radius: 12px;
             border: none;
@@ -589,21 +560,13 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             color: white;
         }
 
-<<<<<<< HEAD
-        .btn-revive, .btn-view {
-=======
         .btn-revive, .btn-view, .btn-reset {
->>>>>>> origin/rel-code
             background: var(--gradient-3);
             color: white;
         }
 
         .btn-primary:hover, .btn-logout:hover, .btn-approve:hover, .btn-reject:hover,
-<<<<<<< HEAD
-        .btn-delete:hover, .btn-block:hover, .btn-revive:hover, .btn-view:hover, .btn-convert:hover {
-=======
         .btn-delete:hover, .btn-block:hover, .btn-revive:hover, .btn-view:hover, .btn-convert:hover, .btn-reset:hover {
->>>>>>> origin/rel-code
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
@@ -773,21 +736,14 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
 
         .tab-content {
             display: none;
-<<<<<<< HEAD
-        }
-
-=======
             padding: 2rem;
         }
 
 
->>>>>>> origin/rel-code
         .tab-content.active {
             display: block;
         }
 
-<<<<<<< HEAD
-=======
         /* Footer Styles */
         .footer {
             text-align: center;
@@ -866,7 +822,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             }
         }
 
->>>>>>> origin/rel-code
         /* Form Container */
         .form-container {
             background: var(--white);
@@ -1140,129 +1095,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             font-size: 0.9rem;
         }
 
-<<<<<<< HEAD
-        ./* Project Card */
-        .project-card {
-            background: white;
-            border: 2px solid var(--secondary);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--gradient-1);
-            transform: scaleY(0);
-            transition: transform 0.3s ease;
-            transform-origin: bottom;
-        }
-
-        .project-card:hover::before {
-            transform: scaleY(1);
-        }
-
-        .project-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
-        }
-
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-            gap: 1rem;
-        }
-
-        .project-header h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark);
-            line-height: 1.3;
-            flex: 1;
-        }
-
-        .status-badge {
-            padding: 0.4rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-            white-space: nowrap;
-        }
-
-        .status-active {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .status-completed {
-            background: rgba(6, 182, 212, 0.1);
-            color: var(--accent);
-            border: 1px solid rgba(6, 182, 212, 0.2);
-        }
-
-        .status-pending {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-        }
-
-        .status-delayed {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            animation: pulse-danger 2s infinite;
-        }
-
-        @keyframes pulse-danger {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .project-description {
-            color: var(--gray);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 1rem;
-        }
-
-        .project-meta {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--gray);
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .meta-item i {
-            color: var(--primary);
-            font-size: 0.9rem;
-        }
-
-=======
->>>>>>> origin/rel-code
         .project-actions {
             display: flex;
             justify-content: flex-end;
@@ -1443,13 +1275,8 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                     <img src="assets/images/tihan_logo.webp" alt="TiHAN Logo">
                 </div>
                 <div>
-<<<<<<< HEAD
-                    <div style="font-size: 1.25rem;">TiHAN-NIDHI</div>
-                    <div style="font-size: 1.25rem;">Superadmin</div>
-=======
                     <div style="font-size: 1.65rem; font-family: 'Samarkan', sans-serif; ">NIDHI</div>
                     <div style="font-size: 1.15rem;">Superadmin</div>
->>>>>>> origin/rel-code
                     <div style="font-size: 0.75rem; opacity: 0.8;">Networked Innovation for Development and Holistic Implementation</div>
                 </div>
             </div>
@@ -1706,12 +1533,9 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                                             <i class="fas fa-undo"></i> Revive
                                         </button>
                                     <?php endif; ?>
-<<<<<<< HEAD
-=======
                                     <button class="btn-reset" onclick="event.stopPropagation(); resetPassword('<?= urlencode($admin['employee_id']) ?>', 'admin')">
                                         <i class="fas fa-key"></i> Reset Password
                                     </button>
->>>>>>> origin/rel-code
                                     <button class="btn-delete" onclick="if(confirm('Are you sure you want to delete this admin?')) window.location.href='superadmin_dashboard.php?delete_admin=<?= urlencode($admin['employee_id']) ?>'">
                                         <i class="fas fa-trash"></i> Delete
                                     </button>
@@ -1736,14 +1560,10 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                                     <button class="btn-convert" onclick="if(confirm('Are you sure you want to convert this user to admin?')) window.location.href='superadmin_dashboard.php?convert_to_admin=<?= urlencode($user['employee_id']) ?>'">
                                         <i class="fas fa-user-shield"></i> Admin
                                     </button>
-<<<<<<< HEAD
-  <button class="btn-delete" onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='superadmin_dashboard.php?delete_user=<?= urlencode($user['employee_id']) ?>'">
-=======
                                     <button class="btn-reset" onclick="event.stopPropagation(); resetPassword('<?= urlencode($user['employee_id']) ?>', 'user')">
                                         <i class="fas fa-key"></i> Reset Password
                                     </button>
                                     <button class="btn-delete" onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='superadmin_dashboard.php?delete_user=<?= urlencode($user['employee_id']) ?>'">
->>>>>>> origin/rel-code
                                         <i class="fas fa-trash"></i> Delete
                                     </button>
                                 </div>
@@ -1791,8 +1611,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                 </div>
             </div>
 
-<<<<<<< HEAD
-=======
     <!-- Add User/Admin Tab -->
             <div class="tab-content" id="add-user-admin">
                 <div class="form-container">
@@ -1829,7 +1647,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                 </div>
             </div>
 
->>>>>>> origin/rel-code
             <!-- Assignments Tab -->
             <div class="tab-content" id="assignments">
                 <div class="form-container">
@@ -1876,11 +1693,7 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                     </form>
                 </div>
             </div>
-<<<<<<< HEAD
-
-=======
             
->>>>>>> origin/rel-code
             <!-- Task Management Tab -->
             <div class="tab-content" id="task-assignment">
                 <div class="form-container">
@@ -1954,12 +1767,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                         <button type="submit">Assign Task</button>
                     </form>
                 </div>
-<<<<<<< HEAD
-            </div>
-        </div>
-    </div>
-
-=======
                 <div class="form-container">
                     <h3>Reset Password</h3>
                     <?php if (isset($reset_message)): ?>
@@ -2009,7 +1816,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             </div>
         </div>
     </div>
->>>>>>> origin/rel-code
     <script>
         function viewProject(project_id) {
             console.log('Navigating to project details for ID:', project_id);
@@ -2074,8 +1880,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             });
         }
 
-<<<<<<< HEAD
-=======
         function resetPassword(employeeId, role) {
             if (!confirm(`Are you sure you want to reset the password for this ${role}?`)) return;
             document.getElementById('reset_employee_id').value = employeeId;
@@ -2083,7 +1887,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             document.getElementById('new_password').focus();
         }
 
->>>>>>> origin/rel-code
         function showTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
@@ -2097,8 +1900,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             if (!dropdown.contains(e.target) && !icon.contains(e.target)) {
                 dropdown.classList.remove('active');
             }
-<<<<<<< HEAD
-=======
 
                         // Sidebar toggle for mobile
             window.toggleSidebar = function() {
@@ -2117,7 +1918,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                 document.body.style.overflow = 'auto';
             };
 
->>>>>>> origin/rel-code
         });
 
         // Initialize first tab

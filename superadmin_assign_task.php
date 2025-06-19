@@ -67,11 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         if ($assignment_check['count'] == 0) {
             // Auto-assign employee to project if not already assigned
-<<<<<<< HEAD
-            $assign_query = "INSERT INTO project_assignments (project_id, employee_id, assigned_date) VALUES (?, ?, NOW())";
-=======
             $assign_query = "INSERT INTO project_assignments (project_id, employee_id, assigned_at VALUES (?, ?, NOW())";
->>>>>>> origin/rel-code
             $stmt = mysqli_prepare($conn, $assign_query);
             mysqli_stmt_bind_param($stmt, "is", $task_project_id, $task_employee_id);
             mysqli_stmt_execute($stmt);
@@ -101,11 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< HEAD
-    <title>Assign Task - Superadmin Dashboard</title>
-=======
     <title>Assign Task - Super Admin Dashboard</title>
->>>>>>> origin/rel-code
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>

@@ -85,8 +85,6 @@ mysqli_stmt_execute($stmt);
 $tasks_result = mysqli_stmt_get_result($stmt);
 
 // Calculate task statistics for this specific context
-<<<<<<< HEAD
-=======
 // Re-fetch employee_id to ensure correctness
 $employee_id_query = "SELECT employee_id FROM users WHERE id = ?";
 $stmt = mysqli_prepare($conn, $employee_id_query);
@@ -100,7 +98,6 @@ $employee_id = $employee_data['employee_id'];
 error_log("Stats query using employee_id: " . $employee_id);
 
 // Now calculate stats using the correct employee_id, treating it as a string
->>>>>>> origin/rel-code
 if ($project_id > 0) {
     $stats_query = "SELECT 
                     COUNT(*) as total_tasks,
@@ -111,11 +108,7 @@ if ($project_id > 0) {
                     FROM tasks 
                     WHERE employee_id = ? AND project_id = ?";
     $stmt = mysqli_prepare($conn, $stats_query);
-<<<<<<< HEAD
-    mysqli_stmt_bind_param($stmt, "ii", $user['employee_id'], $project_id);
-=======
     mysqli_stmt_bind_param($stmt, "si", $employee_id, $project_id); // Treat employee_id as string
->>>>>>> origin/rel-code
 } else {
     $stats_query = "SELECT 
                     COUNT(*) as total_tasks,
@@ -126,20 +119,12 @@ if ($project_id > 0) {
                     FROM tasks 
                     WHERE employee_id = ?";
     $stmt = mysqli_prepare($conn, $stats_query);
-<<<<<<< HEAD
-    mysqli_stmt_bind_param($stmt, "i", $user['employee_id']);
-=======
     mysqli_stmt_bind_param($stmt, "s", $employee_id); // Treat employee_id as string
->>>>>>> origin/rel-code
 }
 
 mysqli_stmt_execute($stmt);
 $stats_result = mysqli_stmt_get_result($stmt);
 $stats = mysqli_fetch_assoc($stats_result);
-<<<<<<< HEAD
-?>
-
-=======
 
 // Log the stats for debugging
 error_log("Stats for employee_id $employee_id: Total=" . $stats['total_tasks'] . ", Completed=" . $stats['completed_tasks'] . ", In Progress=" . $stats['in_progress_tasks'] . ", Pending=" . $stats['pending_tasks']);
@@ -147,7 +132,6 @@ error_log("Stats for employee_id $employee_id: Total=" . $stats['total_tasks'] .
 
 
 
->>>>>>> origin/rel-code
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -157,13 +141,10 @@ error_log("Stats for employee_id $employee_id: Total=" . $stats['total_tasks'] .
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-<<<<<<< HEAD
-=======
         body{
             overflow: scroll;
         }
         
->>>>>>> origin/rel-code
         .user-tasks-container {
             max-width: 1200px;
             margin: 0 auto;

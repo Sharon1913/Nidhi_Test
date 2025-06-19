@@ -32,11 +32,6 @@ body {
     background: var(--light);
     color: var(--dark);
     line-height: 1.6;
-<<<<<<< HEAD
-    overflow-x: hidden;
-}
-
-=======
     overflow: hidden;
 }
 /* Ensure the body takes up the full viewport height and uses flexbox */
@@ -79,7 +74,6 @@ html, body {
         margin-left: 0;
     }
 }
->>>>>>> origin/rel-code
 /* Dashboard Container */
 .dashboard-container {
     min-height: 100vh;
@@ -232,11 +226,7 @@ html, body {
     background: white;
     border-radius: 20px;
     box-shadow: var(--shadow);
-<<<<<<< HEAD
-    overflow: hidden;
-=======
     overflow: auto;
->>>>>>> origin/rel-code
     transition: all 0.3s ease;
     animation: fadeInUp 0.6s ease-out;
 }
@@ -549,10 +539,7 @@ html, body {
     
     .project-section {
         min-height: auto;
-<<<<<<< HEAD
-=======
         overflow: auto;
->>>>>>> origin/rel-code
     }
     
     .projects-container {

@@ -24,21 +24,13 @@ if (isset($_GET['remove_user']) && isset($_GET['project_id'])) {
     // Delete tasks Warning: Undefined variable $conn in /home/admin_project_details.php on line 27 assigned to this user for this project
     $delete_tasks = "DELETE FROM tasks WHERE employee_id = ? AND project_id = ?";
     $stmt = mysqli_prepare($conn, $delete_tasks);
-<<<<<<< HEAD
-    mysqli_stmt_bind_param($stmt, "ii", $employee_id, $project_id);
-=======
     mysqli_stmt_bind_param($stmt, "si", $employee_id, $project_id);
->>>>>>> origin/rel-code
     mysqli_stmt_execute($stmt);
     
     // Remove the user from project assignments
     $delete_assignment = "DELETE FROM project_assignments WHERE employee_id = ? AND project_id = ?";
     $stmt = mysqli_prepare($conn, $delete_assignment);
-<<<<<<< HEAD
-    mysqli_stmt_bind_param($stmt, "ii", $employee_id, $project_id);
-=======
     mysqli_stmt_bind_param($stmt, "si", $employee_id, $project_id);
->>>>>>> origin/rel-code
     mysqli_stmt_execute($stmt);
     
     header("Location: admin_project_details.php?id=$project_id");
@@ -102,13 +94,10 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-<<<<<<< HEAD
-=======
         body{
             overflow: scroll;
         }
         
->>>>>>> origin/rel-code
         .project-details-container {
             max-width: 1200px;
             margin: 0 auto;

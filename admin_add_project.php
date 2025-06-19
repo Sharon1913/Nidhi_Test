@@ -14,11 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $category = mysqli_real_escape_string($conn, $_POST['category']);
     $due_date = mysqli_real_escape_string($conn, $_POST['due_date']);
-<<<<<<< HEAD
-    $status = 'active'; // Default status
-=======
     $status = 'pending'; // Default status
->>>>>>> origin/rel-code
     
     $query = "INSERT INTO projects (name, description, category, due_date, status, created_at) 
               VALUES (?, ?, ?, ?, ?, NOW())";

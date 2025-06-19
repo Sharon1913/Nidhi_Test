@@ -26,23 +26,11 @@ if (isset($_GET['remove_user']) && isset($_GET['project_id'])) {
     $stmt = mysqli_prepare($conn, $delete_tasks);
     mysqli_stmt_bind_param($stmt, "si", $employee_id, $project_id);
     mysqli_stmt_execute($stmt);
-<<<<<<< HEAD
-    mysqli_stmt_close($stmt);
-    
-=======
-
->>>>>>> origin/rel-code
     // Remove the user from project assignments
     $delete_assignment = "DELETE FROM project_assignments WHERE employee_id = ? AND project_id = ?";
     $stmt = mysqli_prepare($conn, $delete_assignment);
     mysqli_stmt_bind_param($stmt, "si", $employee_id, $project_id);
     mysqli_stmt_execute($stmt);
-<<<<<<< HEAD
-    mysqli_stmt_close($stmt);
-    
-=======
-
->>>>>>> origin/rel-code
     header("Location: superadmin_project_details.php?id=$project_id");
     exit();
 }
@@ -54,21 +42,13 @@ mysqli_stmt_bind_param($stmt, "i", $project_id);
 mysqli_stmt_execute($stmt);
 $project_result = mysqli_stmt_get_result($stmt);
 $project = mysqli_fetch_assoc($project_result);
-<<<<<<< HEAD
-mysqli_stmt_close($stmt);
-=======
->>>>>>> origin/rel-code
 
 if (!$project) {
     header("Location: superadmin_dashboard.php");
     exit();
 }
 
-<<<<<<< HEAD
-// Fetch users assigned to this project with their task counts and status, excluding  superadmins
-=======
 // Fetch users assigned to this project with their task counts and status, excluding superadmins
->>>>>>> origin/rel-code
 $users_query = "SELECT u.id, u.email,
                 COUNT(t.id) as total_tasks,
                 COUNT(CASE WHEN t.status = 'completed' THEN 1 END) as completed_tasks,
@@ -79,11 +59,7 @@ $users_query = "SELECT u.id, u.email,
                 FROM users u
                 INNER JOIN project_assignments pa ON u.id = pa.employee_id
                 LEFT JOIN tasks t ON u.id = t.employee_id AND t.project_id = ?
-<<<<<<< HEAD
-                WHERE pa.project_id = ? AND u.role NOT IN ( 'superadmin')
-=======
                 WHERE pa.project_id = ? AND LOWER(u.role) NOT IN ('superadmin')
->>>>>>> origin/rel-code
                 GROUP BY u.id, u.email
                 ORDER BY u.email";
 
@@ -91,9 +67,6 @@ $stmt = mysqli_prepare($conn, $users_query);
 mysqli_stmt_bind_param($stmt, "ii", $project_id, $project_id);
 mysqli_stmt_execute($stmt);
 $users_result = mysqli_stmt_get_result($stmt);
-<<<<<<< HEAD
-mysqli_stmt_close($stmt);
-=======
 
 // Debugging: Log the number of users found
 error_log("Number of users found for project $project_id: " . mysqli_num_rows($users_result));
@@ -107,7 +80,6 @@ if (mysqli_num_rows($users_result) == 0) {
     $assignments_result = mysqli_stmt_get_result($stmt);
     error_log("Number of assignments for project $project_id: " . mysqli_num_rows($assignments_result));
 }
->>>>>>> origin/rel-code
 
 // Calculate project progress
 $progress_query = "SELECT 
@@ -119,10 +91,6 @@ mysqli_stmt_bind_param($stmt, "i", $project_id);
 mysqli_stmt_execute($stmt);
 $progress_result = mysqli_stmt_get_result($stmt);
 $progress = mysqli_fetch_assoc($progress_result);
-<<<<<<< HEAD
-mysqli_stmt_close($stmt);
-=======
->>>>>>> origin/rel-code
 
 $progress_percentage = $progress['total_tasks'] > 0 ? 
     round(($progress['completed_tasks'] / $progress['total_tasks']) * 100) : 0;
@@ -137,13 +105,10 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-<<<<<<< HEAD
-=======
         body{
             overflow:auto;
         }
 
->>>>>>> origin/rel-code
         .project-details-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -542,10 +507,7 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
 
                 <div class="users-grid">
                     <?php if (mysqli_num_rows($users_result) > 0): ?>
-<<<<<<< HEAD
-=======
                         <?php mysqli_data_seek($users_result, 0); // Reset result pointer ?>
->>>>>>> origin/rel-code
                         <?php while($user = mysqli_fetch_assoc($users_result)): ?>
                             <div class="user-card" onclick="viewUserTasks(<?= $user['id'] ?>, <?= $project_id ?>)">
                                 <div class="user-header">
