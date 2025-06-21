@@ -1,5 +1,4 @@
 <?php
-#edit task page
 session_start();
 require_once 'db.php';
 
@@ -60,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-
 // Fetch project details
 $query = "SELECT * FROM projects WHERE id = ?";
 $stmt = mysqli_prepare($conn, $query);
@@ -75,8 +73,8 @@ if (!$project) {
     exit();
 }
 
-// Fetch all users
-$users_query = "SELECT id, employee_id, name FROM users WHERE role = 'user'";
+// Fetch all users (corrected column name - adjust 'full_name' to match your schema)
+$users_query = "SELECT id, employee_id, full_name FROM users WHERE role = 'user'";
 $users_result = mysqli_query($conn, $users_query);
 $users = [];
 while ($row = mysqli_fetch_assoc($users_result)) {
@@ -94,7 +92,6 @@ while ($row = mysqli_fetch_assoc($assigned_users_result)) {
     $assigned_user_ids[] = $row['employee_id'];
 }
 mysqli_stmt_close($stmt_assigned);
-
 ?>
 
 <!DOCTYPE html>
@@ -106,109 +103,22 @@ mysqli_stmt_close($stmt_assigned);
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .form-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #2d3748;
-        }
-        
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-group select[multiple] {
-            min-height: 150px;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            margin-top: 2rem;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+        /* Existing styles remain the same */
+        .btn-view, .btn-edit, .btn-delete {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-        }
-        
-        .btn-primary {
+            border: none;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            margin-right: 0.5rem;
         }
-        
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .alert-error {
-            background: #fed7d7;
-            color: #c53030;
-            border: 1px solid #feb2b2;
-        }
-        
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            margin-bottom: 2rem;
-            transition: all 0.3s ease;
-        }
-        
-        .back-button:hover {
-            color: #764ba2;
-            transform: translateX(-2px);
+        .btn-view:hover, .btn-edit:hover, .btn-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -251,8 +161,8 @@ mysqli_stmt_close($stmt_assigned);
                     <label for="users">Assign Users</label>
                     <select id="users" name="users[]" multiple>
                         <?php foreach($users as $user): ?>
-                            <option value="<?= $user['id'] ?>" <?= in_array($user['id'], $assigned_user_ids) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($user['name']) ?> (<?= htmlspecialchars($user['employee_id']) ?>)
+                            <option value="<?= $user['id'] ?>" <?= in_array($user['employee_id'], $assigned_user_ids) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($user['full_name']) ?> (<?= htmlspecialchars($user['employee_id']) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -270,4 +180,4 @@ mysqli_stmt_close($stmt_assigned);
         </div>
     </div>
 </body>
-</html> 
+</html>

@@ -1070,40 +1070,41 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                             <div class="projects-container">
                                 <?php if (mysqli_num_rows($ugv_result) > 0): ?>
                                     <?php while($project = mysqli_fetch_assoc($ugv_result)): ?>
-                                        <div class="project-card" onclick="viewProject(<?= $project['id'] ?>)">
-                                            <div class="project-header">
-                                                <h3><?= htmlspecialchars($project['name']) ?></h3>
-                                                <span class="status-badge status-<?= strtolower($project['status']) ?>">
-                                                    <?= ucfirst($project['status']) ?>
-                                                </span>
-                                            </div>
-                                            <div class="project-details">
-                                                <p class="project-description">
-                                                    <?= htmlspecialchars(substr($project['description'], 0, 100)) ?>...
-                                                </p>
-                                                <div class="project-meta">
-                                                    <span class="meta-item">
-                                                        <i class="fas fa-users"></i>
-                                                        <?= $project['user_count'] ?> Members
-                                                    </span>
-                                                    <span class="meta-item">
-                                                        <i class="fas fa-calendar"></i>
-                                                        Due: <?= date('M d, Y', strtotime($project['due_date'])) ?>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="project-actions">
-                                                <button class="btn-view" onclick="event.stopPropagation(); viewProject(<?= $project['id'] ?>)">
-                                                    <i class="fas fa-eye"></i> View Details
-                                                </button>
-                                                <button class="btn-edit" onclick="event.stopPropagation(); window.location.href='admin_edit_project.php?id=<?= $project['id'] ?>'">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </button>
-                                                <button class="btn-delete" onclick="event.stopPropagation(); if(confirm('Are you sure you want to delete this project?')) window.location.href='admin_dashboard.php?delete_project=<?= $project['id'] ?>'">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                            </div>
-                                        </div>
+                                        <!-- Inside the projects-container loop for both UGV and UAV -->
+<div class="project-card" onclick="viewProject(<?= $project['id'] ?>)">
+    <div class="project-header">
+        <h3><?= htmlspecialchars($project['name']) ?></h3>
+        <span class="status-badge status-<?= strtolower($project['status']) ?>">
+            <?= ucfirst($project['status']) ?>
+        </span>
+    </div>
+    <div class="project-details">
+        <p class="project-description">
+            <?= htmlspecialchars(substr($project['description'], 0, 100)) ?>...
+        </p>
+        <div class="project-meta">
+            <span class="meta-item">
+                <i class="fas fa-users"></i>
+                <?= $project['user_count'] ?> Members
+            </span>
+            <span class="meta-item">
+                <i class="fas fa-calendar"></i>
+                Due: <?= date('M d, Y', strtotime($project['due_date'])) ?>
+            </span>
+        </div>
+    </div>
+    <div class="project-actions">
+        <button class="btn-view" onclick="event.stopPropagation(); viewProject(<?= $project['id'] ?>)">
+            <i class="fas fa-eye"></i> View Details
+        </button>
+        <button class="btn-edit" onclick="event.stopPropagation(); window.location.href='admin_edit_project.php?id=<?= $project['id'] ?>'">
+            <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="btn-view" onclick="event.stopPropagation(); if(confirm('Are you sure you want to delete this project?')) window.location.href='admin_dashboard.php?delete_project=<?= $project['id'] ?>'">
+            <i class="fas fa-trash"></i> Delete
+        </button>
+    </div>
+</div>
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <div class="empty-state">
@@ -1124,40 +1125,41 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                             <div class="projects-container">
                                 <?php if (mysqli_num_rows($uav_result) > 0): ?>
                                     <?php while($project = mysqli_fetch_assoc($uav_result)): ?>
-                                        <div class="project-card" onclick="viewProject(<?= $project['id'] ?>)">
-                                            <div class="project-header">
-                                                <h3><?= htmlspecialchars($project['name']) ?></h3>
-                                                <span class="status-badge status-<?= strtolower($project['status']) ?>">
-                                                    <?= ucfirst($project['status']) ?>
-                                                </span>
-                                            </div>
-                                            <div class="project-details">
-                                                <p class="project-description">
-                                                    <?= htmlspecialchars(substr($project['description'], 0, 100)) ?>...
-                                                </p>
-                                                <div class="project-meta">
-                                                    <span class="meta-item">
-                                                        <i class="fas fa-users"></i>
-                                                        <?= $project['user_count'] ?> Members
-                                                    </span>
-                                                    <span class="meta-item">
-                                                        <i class="fas fa-calendar"></i>
-                                                        Due: <?= date('M d, Y', strtotime($project['due_date'])) ?>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="project-actions">
-                                                <button class="btn-view" onclick="event.stopPropagation(); viewProject(<?= $project['id'] ?>)">
-                                                    <i class="fas fa-eye"></i> View Details
-                                                </button>
-                                                <button class="btn-edit" onclick="event.stopPropagation(); window.location.href='admin_edit_project.php?id=<?= $project['id'] ?>'">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </button>
-                                                <button class="btn-delete" onclick="event.stopPropagation(); if(confirm('Are you sure you want to delete this project?')) window.location.href='admin_dashboard.php?delete_project=<?= $project['id'] ?>'">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                            </div>
-                                        </div>
+                                        <!-- Inside the projects-container loop for both UGV and UAV -->
+<div class="project-card" onclick="viewProject(<?= $project['id'] ?>)">
+    <div class="project-header">
+        <h3><?= htmlspecialchars($project['name']) ?></h3>
+        <span class="status-badge status-<?= strtolower($project['status']) ?>">
+            <?= ucfirst($project['status']) ?>
+        </span>
+    </div>
+    <div class="project-details">
+        <p class="project-description">
+            <?= htmlspecialchars(substr($project['description'], 0, 100)) ?>...
+        </p>
+        <div class="project-meta">
+            <span class="meta-item">
+                <i class="fas fa-users"></i>
+                <?= $project['user_count'] ?> Members
+            </span>
+            <span class="meta-item">
+                <i class="fas fa-calendar"></i>
+                Due: <?= date('M d, Y', strtotime($project['due_date'])) ?>
+            </span>
+        </div>
+    </div>
+    <div class="project-actions">
+        <button class="btn-view" onclick="event.stopPropagation(); viewProject(<?= $project['id'] ?>)">
+            <i class="fas fa-eye"></i> View Details
+        </button>
+        <button class="btn-edit" onclick="event.stopPropagation(); window.location.href='admin_edit_project.php?id=<?= $project['id'] ?>'">
+            <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="btn-view" onclick="event.stopPropagation(); if(confirm('Are you sure you want to delete this project?')) window.location.href='admin_dashboard.php?delete_project=<?= $project['id'] ?>'">
+            <i class="fas fa-trash"></i> Delete
+        </button>
+    </div>
+</div>
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <div class="empty-state">
