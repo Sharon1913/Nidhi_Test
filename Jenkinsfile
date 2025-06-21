@@ -27,7 +27,14 @@ pipeline {
                 sh 'docker-compose down || true'
             }
         }
-    
+
+        stage('Build nidhi Image') {
+            steps {
+                echo 'Rebuilding nidhi image from updated code...'
+                sh 'docker build -t nidhi .'
+            }
+        }
+
         stage('Build and Start Services') {
             steps {
                 echo 'Rebuilding all services and starting with docker-compose...'
