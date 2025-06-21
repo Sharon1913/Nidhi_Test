@@ -2,7 +2,7 @@
 session_start();
 require_once 'db.php';
 
-// Check if user is logged in and is admin!!
+// Check if user is logged in and is admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: index.php");
     exit();
@@ -74,7 +74,7 @@ if (!$project) {
 }
 
 // Fetch all users (corrected column name - adjust 'full_name' to match your schema)
-$users_query = "SELECT id, employee_id, full_name FROM users WHERE role = 'user'";
+$users_query = "SELECT id, employee_id, first_name FROM users WHERE role = 'user'";
 $users_result = mysqli_query($conn, $users_query);
 $users = [];
 while ($row = mysqli_fetch_assoc($users_result)) {
