@@ -885,6 +885,9 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                                                 <button class="btn-view" onclick="event.stopPropagation(); viewProject(<?= $project['id'] ?>)">
                                                     <i class="fas fa-eye"></i> View Details
                                                 </button>
+                                                <button class="btn-edit" onclick="event.stopPropagation(); window.location.href='admin_edit_project.php?id=<?= $project['id'] ?>'">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
                                                 <button class="btn-delete" onclick="event.stopPropagation(); if(confirm('Are you sure you want to delete this project?')) window.location.href='admin_dashboard.php?delete_project=<?= $project['id'] ?>'">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>
@@ -935,6 +938,9 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                                             <div class="project-actions">
                                                 <button class="btn-view" onclick="event.stopPropagation(); viewProject(<?= $project['id'] ?>)">
                                                     <i class="fas fa-eye"></i> View Details
+                                                </button>
+                                                <button class="btn-edit" onclick="event.stopPropagation(); window.location.href='admin_edit_project.php?id=<?= $project['id'] ?>'">
+                                                    <i class="fas fa-edit"></i> Edit
                                                 </button>
                                                 <button class="btn-delete" onclick="event.stopPropagation(); if(confirm('Are you sure you want to delete this project?')) window.location.href='admin_dashboard.php?delete_project=<?= $project['id'] ?>'">
                                                     <i class="fas fa-trash"></i> Delete
