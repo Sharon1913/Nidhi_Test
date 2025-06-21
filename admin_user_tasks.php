@@ -85,6 +85,19 @@ mysqli_stmt_execute($stmt);
 $tasks_result = mysqli_stmt_get_result($stmt);
 
 // Calculate task statistics for this specific context
+// Re-fetch employee_id to ensure correctness
+$employee_id_query = "SELECT employee_id FROM users WHERE id = ?";
+$stmt = mysqli_prepare($conn, $employee_id_query);
+mysqli_stmt_bind_param($stmt, "i", $user_id);
+mysqli_stmt_execute($stmt);
+$employee_result = mysqli_stmt_get_result($stmt);
+$employee_data = mysqli_fetch_assoc($employee_result);
+$employee_id = $employee_data['employee_id'];
+
+// Log for debugging
+error_log("Stats query using employee_id: " . $employee_id);
+
+// Now calculate stats using the correct employee_id, treating it as a string
 if ($project_id > 0) {
     $stats_query = "SELECT 
                     COUNT(*) as total_tasks,
@@ -95,7 +108,7 @@ if ($project_id > 0) {
                     FROM tasks 
                     WHERE employee_id = ? AND project_id = ?";
     $stmt = mysqli_prepare($conn, $stats_query);
-    mysqli_stmt_bind_param($stmt, "ii", $user['employee_id'], $project_id);
+    mysqli_stmt_bind_param($stmt, "si", $employee_id, $project_id); // Treat employee_id as string
 } else {
     $stats_query = "SELECT 
                     COUNT(*) as total_tasks,
@@ -106,13 +119,18 @@ if ($project_id > 0) {
                     FROM tasks 
                     WHERE employee_id = ?";
     $stmt = mysqli_prepare($conn, $stats_query);
-    mysqli_stmt_bind_param($stmt, "i", $user['employee_id']);
+    mysqli_stmt_bind_param($stmt, "s", $employee_id); // Treat employee_id as string
 }
 
 mysqli_stmt_execute($stmt);
 $stats_result = mysqli_stmt_get_result($stmt);
 $stats = mysqli_fetch_assoc($stats_result);
+
+// Log the stats for debugging
+error_log("Stats for employee_id $employee_id: Total=" . $stats['total_tasks'] . ", Completed=" . $stats['completed_tasks'] . ", In Progress=" . $stats['in_progress_tasks'] . ", Pending=" . $stats['pending_tasks']);
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -123,6 +141,10 @@ $stats = mysqli_fetch_assoc($stats_result);
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        body{
+            overflow: scroll;
+        }
+        
         .user-tasks-container {
             max-width: 1200px;
             margin: 0 auto;

@@ -1,11 +1,10 @@
 <?php
 session_start();
 
-
 // Database connection
-$host = "localhost";
+$host = "mysql";
 $user = "root";
-$password = "";
+$password = "my-secret-pw";
 $database = "tihan_project_management";
 
 $conn = new mysqli($host, $user, $password, $database);
@@ -66,6 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Login - TiHAN Project Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/samarkan?styles=6066" rel="stylesheet">
+                
     <style>
         :root {
             --primary: #6366f1;
@@ -89,17 +90,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            background-image: url('assets/images/WhatsApp Image 2025-06-03 at 13.01.41_a5cac95a.jpg');
+            background-repeat: no-repeat;
+            background-size: cover; 
             min-height: 100vh;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: right;
+            padding: 4rem;
             position: relative;
-            overflow: hidden;
+            overflow: auto;
         }
 
         /* Animated background */
-        .bg-animation {
+        /* .bg-animation {
             position: absolute;
             top: 0;
             left: 0;
@@ -121,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 rgba(255,255,255,0.1) 50%, 
                 transparent 70%);
             animation: shimmer 3s infinite;
-        }
+        } */
 
         @keyframes shimmer {
             0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
@@ -222,17 +227,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.5rem;
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+            /* box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); */
+            gap: 1rem;
             animation: pulse 2s infinite;
         }
         .logo img {
-          width: 100px;
-          height: 50px;
+          width: 105x;
+          height: 60px;
           object-fit: contain;
           border-radius: 12px;
-          background: rgba(255, 255, 255, 0.2);
+          /* background: rgba(255, 255, 255, 0.2); */
           padding: 5px;
       }
+            .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
@@ -246,16 +262,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .header-section h1 {
             color: var(--dark);
-            font-size: 2rem;
+            font-size: 4rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
             letter-spacing: -0.025em;
+            font-family: 'Samarkan', sans-serif;
         }
 
         .header-section p {
             color: var(--gray);
             font-size: 1rem;
             font-weight: 400;
+            font-style: italic;
         }
 
         .form-group {
@@ -439,20 +457,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
+    <!-- <div class="bg-animation"></div>
     <div class="floating-shapes">
         <div class="shape"></div>
         <div class="shape"></div>
         <div class="shape"></div>
-    </div>
+    </div> -->
 
     <div class="login-container">
         <div class="header-section">
             <div class="logo">
                 <img src="assets/images/tihan_logo.webp" alt="TiHAN Logo">
             </div>
-            <h1>TiHAN NIDHI</h1>
-            <p>Sign in to TiHAN Project Management System</p>
+            <h1> NIDHI </h1>
+            <p>Project Management System</p>
         </div>
 
         <?php if (!empty($error)) { ?>

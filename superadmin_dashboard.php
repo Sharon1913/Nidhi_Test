@@ -97,6 +97,20 @@ if (isset($_GET['revive_admin'])) {
     exit();
 }
 
+// Handle password reset for admin or user
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
+    $employee_id = $_POST['employee_id'];
+    $new_password = password_hash(trim($_POST['new_password']), PASSWORD_DEFAULT);
+    $stmt = mysqli_prepare($conn, "UPDATE users SET password = ? WHERE employee_id = ? AND role IN ('admin', 'user')");
+    mysqli_stmt_bind_param($stmt, "ss", $new_password, $employee_id);
+    if (mysqli_stmt_execute($stmt)) {
+        $reset_message = "Password for Employee ID $employee_id has been reset successfully.";
+    } else {
+        $reset_error = "Failed to reset password for Employee ID $employee_id.";
+    }
+    mysqli_stmt_close($stmt);
+}
+
 // Handle project deletion
 if (isset($_GET['delete_project'])) {
     $project_id = intval($_GET['delete_project']);
@@ -364,6 +378,7 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
     <title>Superadmin Dashboard - Project Management</title>
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/samarkan?styles=6066" rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
@@ -398,6 +413,12 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             line-height: 1.6;
             display: flex;
             min-height: 100vh;
+            overflow: auto;
+        }
+        .wrapper {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
         }
 
         /* Sidebar */
@@ -453,19 +474,26 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             transform: translateX(5px);
         }
 
-        /* Dashboard Container */
-        .dashboard-container {
-            margin-left: 280px;
-            flex: 1;
-            padding: 2rem;
-        }
+/* Dashboard Main */
+.dashboard-main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            min-height: calc(100vh - 200px);
-        }
+/* Dashboard Container */
+.dashboard-container {
+    margin-left: 280px;
+    flex: 1 0 auto; /* Grow to fill available space, don't shrink */
+    padding: 2rem;
+    min-height: calc(100vh - 60px); /* Ensure it takes up remaining space minus footer height */
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
 
         /* Header */
         .dashboard-header {
@@ -500,7 +528,7 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
         }
 
         /* Buttons */
-        .btn, .btn-primary, .btn-logout, .btn-approve, .btn-reject, .btn-delete, .btn-block, .btn-revive, .btn-view, .btn-convert {
+        .btn, .btn-primary, .btn-logout, .btn-approve, .btn-reject, .btn-delete, .btn-block, .btn-revive, .btn-view, .btn-convert, .btn-reset {
             padding: 0.75rem 1.5rem;
             border-radius: 12px;
             border: none;
@@ -532,13 +560,13 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             color: white;
         }
 
-        .btn-revive, .btn-view {
+        .btn-revive, .btn-view, .btn-reset {
             background: var(--gradient-3);
             color: white;
         }
 
         .btn-primary:hover, .btn-logout:hover, .btn-approve:hover, .btn-reject:hover,
-        .btn-delete:hover, .btn-block:hover, .btn-revive:hover, .btn-view:hover, .btn-convert:hover {
+        .btn-delete:hover, .btn-block:hover, .btn-revive:hover, .btn-view:hover, .btn-convert:hover, .btn-reset:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
@@ -708,10 +736,90 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
 
         .tab-content {
             display: none;
+            padding: 2rem;
         }
+
 
         .tab-content.active {
             display: block;
+        }
+
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            padding: 1em;
+            color: #a0aec0; /* Light grey */
+            font-size: 0.875rem;
+            cursor: pointer;
+            margin-top: ; /* Pushes footer to bottom of main-content */
+        }
+
+        .footer:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* Credits Modal */
+        .credits-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .credits-modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .credits-modal-header {
+            padding: 1.5rem 2rem;
+            background: var(--gradient-1);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .credits-modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .credits-modal-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .credits-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .credits-list li {
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                max-height: 95vh;
+            }
         }
 
         /* Form Container */
@@ -868,126 +976,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
         }
 
         /* Project Card */
-        .project-card {
-            background: white;
-            border: 2px solid var(--secondary);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--gradient-1);
-            transform: scaleY(0);
-            transition: transform 0.3s ease;
-            transform-origin: bottom;
-        }
-
-        .project-card:hover::before {
-            transform: scaleY(1);
-        }
-
-        .project-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
-        }
-
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-            gap: 1rem;
-        }
-
-        .project-header h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark);
-            line-height: 1.3;
-            flex: 1;
-        }
-
-        .status-badge {
-            padding: 0.4rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-            white-space: nowrap;
-        }
-
-        .status-active {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .status-completed {
-            background: rgba(6, 182, 212, 0.1);
-            color: var(--accent);
-            border: 1px solid rgba(6, 182, 212, 0.2);
-        }
-
-        .status-pending {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-        }
-
-        .status-delayed {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            animation: pulse-danger 2s infinite;
-        }
-
-        @keyframes pulse-danger {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .project-description {
-            color: var(--gray);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 1rem;
-        }
-
-        .project-meta {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--gray);
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .meta-item i {
-            color: var(--primary);
-            font-size: 0.9rem;
-        }
-
-        ./* Project Card */
         .project-card {
             background: white;
             border: 2px solid var(--secondary);
@@ -1287,8 +1275,8 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                     <img src="assets/images/tihan_logo.webp" alt="TiHAN Logo">
                 </div>
                 <div>
-                    <div style="font-size: 1.25rem;">TiHAN-NIDHI</div>
-                    <div style="font-size: 1.25rem;">Superadmin</div>
+                    <div style="font-size: 1.65rem; font-family: 'Samarkan', sans-serif; ">NIDHI</div>
+                    <div style="font-size: 1.15rem;">Superadmin</div>
                     <div style="font-size: 0.75rem; opacity: 0.8;">Networked Innovation for Development and Holistic Implementation</div>
                 </div>
             </div>
@@ -1545,6 +1533,9 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                                             <i class="fas fa-undo"></i> Revive
                                         </button>
                                     <?php endif; ?>
+                                    <button class="btn-reset" onclick="event.stopPropagation(); resetPassword('<?= urlencode($admin['employee_id']) ?>', 'admin')">
+                                        <i class="fas fa-key"></i> Reset Password
+                                    </button>
                                     <button class="btn-delete" onclick="if(confirm('Are you sure you want to delete this admin?')) window.location.href='superadmin_dashboard.php?delete_admin=<?= urlencode($admin['employee_id']) ?>'">
                                         <i class="fas fa-trash"></i> Delete
                                     </button>
@@ -1569,7 +1560,10 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                                     <button class="btn-convert" onclick="if(confirm('Are you sure you want to convert this user to admin?')) window.location.href='superadmin_dashboard.php?convert_to_admin=<?= urlencode($user['employee_id']) ?>'">
                                         <i class="fas fa-user-shield"></i> Admin
                                     </button>
-  <button class="btn-delete" onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='superadmin_dashboard.php?delete_user=<?= urlencode($user['employee_id']) ?>'">
+                                    <button class="btn-reset" onclick="event.stopPropagation(); resetPassword('<?= urlencode($user['employee_id']) ?>', 'user')">
+                                        <i class="fas fa-key"></i> Reset Password
+                                    </button>
+                                    <button class="btn-delete" onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='superadmin_dashboard.php?delete_user=<?= urlencode($user['employee_id']) ?>'">
                                         <i class="fas fa-trash"></i> Delete
                                     </button>
                                 </div>
@@ -1582,6 +1576,42 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             </div>
 
             <!-- Add User/Admin Tab -->
+            <div class="tab-content" id="add-user-admin">
+                <div class="form-container">
+                    <h3>Add New User/Admin</h3>
+                    <?php if (isset($message) && strpos($message, 'added successfully') !== false): ?>
+                        <p class="message-success"><?= htmlspecialchars($message) ?></p>
+                    <?php endif; ?>
+                    <?php if (isset($error)): ?>
+                        <p class="message-error"><?= htmlspecialchars($error) ?></p>
+                    <?php endif; ?>
+                    <form method="POST" class="form-grid">
+                        <input type="hidden" name="add_user_admin" value="1">
+                        <div class="form-group">
+                            <label for="role">Role:</label>
+                            <select name="role" id="role" required>
+                                <option value="admin">Admin</option>
+                                <option value="user">User</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" name="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employee_id">Employee ID:</label>
+                            <input type="text" name="employee_id" id="employee_id" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Temporary Password:</label>
+                            <input type="text" name="password" id="password" required>
+                        </div>
+                        <button type="submit">Add User/Admin</button>
+                    </form>
+                </div>
+            </div>
+
+    <!-- Add User/Admin Tab -->
             <div class="tab-content" id="add-user-admin">
                 <div class="form-container">
                     <h3>Add New User/Admin</h3>
@@ -1663,7 +1693,7 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                     </form>
                 </div>
             </div>
-
+            
             <!-- Task Management Tab -->
             <div class="tab-content" id="task-assignment">
                 <div class="form-container">
@@ -1737,10 +1767,55 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                         <button type="submit">Assign Task</button>
                     </form>
                 </div>
+                <div class="form-container">
+                    <h3>Reset Password</h3>
+                    <?php if (isset($reset_message)): ?>
+                        <p class="message-success"><?= htmlspecialchars($reset_message) ?></p>
+                    <?php endif; ?>
+                    <?php if (isset($reset_error)): ?>
+                        <p class="message-error"><?= htmlspecialchars($reset_error) ?></p>
+                    <?php endif; ?>
+                    <form method="POST" class="form-grid" id="resetPasswordForm">
+                        <input type="hidden" name="reset_password" value="1">
+                        <input type="hidden" name="employee_id" id="reset_employee_id">
+                        <div class="form-group full-width">
+                            <label for="new_password">New Password:</label>
+                            <input type="text" name="new_password" id="new_password" required>
+                        </div>
+                        <button type="submit">Reset Password</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+                    </div>
+        <!-- Footer -->
+        <div class="footer" onclick="showCreditsModal()">
+            © Copyright 2025 NMICPS TiHAN Foundation | All Rights Reserved
+        </div>
 
+        <!-- Credits Modal -->
+        <div class="credits-modal" id="creditsModal">
+            <div class="credits-modal-content">
+                <div class="credits-modal-header">
+                    <h2>Project Credits</h2>
+                    <button class="modal-close" onclick="closeCreditsModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="credits-modal-body">
+                    <h3>Team Members</h3>
+                    <ul class="credits-list">
+                        <li>Dr. P. Rajalakshmi</li>
+                        <li>Dr. S. Syam Narayanan</li>
+                        <li>Muhammed Nazim</li>
+                        <li>Sharon Zipporah Sebastain</li>
+                    </ul>
+                    <p>Thank you to our dedicated team for their contributions to this project!</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         function viewProject(project_id) {
             console.log('Navigating to project details for ID:', project_id);
@@ -1805,6 +1880,13 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             });
         }
 
+        function resetPassword(employeeId, role) {
+            if (!confirm(`Are you sure you want to reset the password for this ${role}?`)) return;
+            document.getElementById('reset_employee_id').value = employeeId;
+            showTab('task-assignment');
+            document.getElementById('new_password').focus();
+        }
+
         function showTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
@@ -1818,6 +1900,24 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             if (!dropdown.contains(e.target) && !icon.contains(e.target)) {
                 dropdown.classList.remove('active');
             }
+
+                        // Sidebar toggle for mobile
+            window.toggleSidebar = function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.style.transform = sidebar.style.transform === 'translateX(-100%)' ? 'translateX(0)' : 'translateX(-100%)';
+            };
+
+            // Credits modal functionality
+            window.showCreditsModal = function() {
+                document.getElementById('creditsModal').style.display = 'flex';
+                document.body.style.overflow = 'auto';
+            };
+
+            window.closeCreditsModal = function() {
+                document.getElementById('creditsModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            };
+
         });
 
         // Initialize first tab

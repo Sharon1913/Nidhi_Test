@@ -151,13 +151,11 @@ $assigned_users_result = mysqli_stmt_get_result($stmt);
         body {
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
+            overflow: auto;
         }
 
-        .dashboard-container {
-            min-width: 1200px;
-            width: 100%;
-            overflow-x: auto;
+        .dashboard-container {mysqli_stmt_bind_param($stmt, "ii", $project_id, $project_id);
+
         }
 
         .assign-container {

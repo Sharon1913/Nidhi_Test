@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $category = mysqli_real_escape_string($conn, $_POST['category']);
     $due_date = mysqli_real_escape_string($conn, $_POST['due_date']);
-    $status = 'pending'; // Default status
+    $status = 'active'; // Default status
     
     $query = "INSERT INTO projects (name, description, category, due_date, status, created_at) 
               VALUES (?, ?, ?, ?, ?, NOW())";
@@ -162,7 +162,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
                     <a href="superadmin_dashboard.php" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </a>
-                    <a href="superadmin_logout.php" class="btn btn-logout">
+                    <a href="admin_logout.php" class="btn btn-logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </div>
