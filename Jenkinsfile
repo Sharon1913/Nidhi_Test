@@ -28,17 +28,10 @@ pipeline {
             }
         }
     
-        stage('Build nidhi Image') {
+        stage('Build and Start Services') {
             steps {
-                echo 'Rebuilding nidhi image from updated code...'
-                sh 'docker build -t nidhi .'
-            }
-        }
-
-        stage('Start Containers') {
-            steps {
-                echo 'Starting services with docker-compose...'
-                sh 'docker-compose up -d'
+                echo 'Rebuilding all services and starting with docker-compose...'
+                sh 'docker-compose up -d --build --force-recreate'
             }
         }
 
