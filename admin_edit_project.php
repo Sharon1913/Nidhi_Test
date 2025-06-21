@@ -162,7 +162,7 @@ mysqli_stmt_close($stmt_assigned);
                     <select id="users" name="users[]" multiple>
                         <?php foreach($users as $user): ?>
                             <option value="<?= $user['id'] ?>" <?= in_array($user['employee_id'], $assigned_user_ids) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($user['full_name']) ?> (<?= htmlspecialchars($user['employee_id']) ?>)
+                                <?= htmlspecialchars($user['first_name']) ?> (<?= htmlspecialchars($user['employee_id']) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
