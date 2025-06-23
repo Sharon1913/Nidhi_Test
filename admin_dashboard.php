@@ -253,7 +253,7 @@ $ugv_query = "SELECT p.*, COUNT(DISTINCT pa.employee_id) as user_count
               LEFT JOIN project_assignments pa ON p.id = pa.project_id 
               WHERE p.category = 'UGV' 
               GROUP BY p.id 
-              ORDER BY p.created_at DESC";
+              ORDER BY p.name ASC";
 $ugv_result = mysqli_query($conn, $ugv_query);
 
 // Fetch UAV projects
@@ -262,7 +262,7 @@ $uav_query = "SELECT p.*, COUNT(DISTINCT pa.employee_id) as user_count
               LEFT JOIN project_assignments pa ON p.id = pa.project_id 
               WHERE p.category = 'UAV' 
               GROUP BY p.id 
-              ORDER BY p.created_at DESC";
+              ORDER BY p.name ASC";
 $uav_result = mysqli_query($conn, $uav_query);
 
 // Calculate dashboard stats
