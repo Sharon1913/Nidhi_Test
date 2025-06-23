@@ -52,7 +52,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
             backdrop-filter: blur(10px);
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow: auto;
+            overflow: scroll;
         }
         
         .form-group {
