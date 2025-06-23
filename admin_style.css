@@ -377,37 +377,36 @@ html, body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border: 2px solid;
 }
 
 .status-active {
     background: rgba(59, 130, 246, 0.1);
     color: var(--primary);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    border: 2px solid rgba(59, 130, 246, 0.2);
 }
 
 .status-completed {
     background: rgba(16, 185, 129, 0.1);
     color: var(--success);
-    border-color: var(--success);
+    border: 2px solid var(--success);
 }
 
 .status-on-going {
     background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-    border-color: #f59e0b;
+    color: #d97706; /* Darker orange for better contrast */
+    border: 2px solid #f59e0b; /* Orange border */
 }
 
 .status-pending {
     background: rgba(245, 158, 11, 0.1);
     color: var(--warning);
-    border-color: var(--warning);
+    border: 2px solid var(--warning);
 }
 
 .status-delayed {
     background: rgba(239, 68, 68, 0.1);
     color: var(--danger);
-    border-color: var(--danger);
+    border: 2px solid var(--danger);
     animation: pulse-danger 2s infinite;
 }
 
