@@ -43,10 +43,6 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
     <link rel="stylesheet" href="admin_style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .body{
-            overflow:auto;
-        }
-
 
         .form-container {
             max-width: 800px;
@@ -56,6 +52,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
             backdrop-filter: blur(10px);
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: auto;
         }
         
         .form-group {
