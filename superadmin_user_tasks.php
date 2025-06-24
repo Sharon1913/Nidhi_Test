@@ -240,12 +240,8 @@ $stats = mysqli_fetch_assoc($stats_result);
                         <div class="stat-label">Completed</div>
                     </div>
                     <div class="stat-card stat-progress">
-                        <div class="stat-number"><?= $stats['in_progress_tasks'] ?></div>
+                        <div class="stat-number"><?= $stats['in_progress_tasks'] + $stats['pending_tasks'] ?></div>
                         <div class="stat-label">In Progress</div>
-                    </div>
-                    <div class="stat-card stat-pending">
-                        <div class="stat-number"><?= $stats['pending_tasks'] ?></div>
-                        <div class="stat-label">Pending</div>
                     </div>
                     <?php if ($stats['overdue_tasks'] > 0): ?>
                     <div class="stat-card stat-overdue">
@@ -275,6 +271,9 @@ $stats = mysqli_fetch_assoc($stats_result);
                                         <span class="task-status status-<?= $task['status'] ?>">
                                             <?= ucfirst(str_replace('_', ' ', $task['status'])) ?>
                                         </span>
+                                        <a href="superadmin_edit_tasks.php?task_id=<?= $task['id'] ?>" class="btn btn-secondary" style="margin-left: 0.5rem;">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
                                         <button class="btn-delete-task" onclick="if(confirm('Are you sure you want to delete this task?')) window.location.href='superadmin_user_tasks.php?user_id=<?= $user_id ?>&delete_task=<?= $task['id'] ?><?= $project_id > 0 ? "&project_id=$project_id" : "" ?>'">
                                             <i class="fas fa-trash"></i> Delete
                                         </button>
