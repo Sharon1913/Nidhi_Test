@@ -268,9 +268,11 @@ $stats = mysqli_fetch_assoc($stats_result);
                                 <div class="task-header">
                                     <h3 class="task-title"><?= htmlspecialchars($task['title']) ?></h3>
                                     <div class="task-actions">
-                                        <span class="task-status status-<?= $task['status'] ?>">
-                                            <?= ucfirst(str_replace('_', ' ', $task['status'])) ?>
-                                        </span>
+                                        <?php if ($task['status'] == 'completed'): ?>
+                                            <span class="task-status status-completed">Completed</span>
+                                        <?php else: ?>
+                                            <span class="task-status status-in_progress">In Progress</span>
+                                        <?php endif; ?>
                                         <a href="superadmin_edit_tasks.php?task_id=<?= $task['id'] ?>" class="btn btn-secondary" style="margin-left: 0.5rem;">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
