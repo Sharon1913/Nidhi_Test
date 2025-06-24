@@ -154,6 +154,30 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
             color: #764ba2;
             transform: translateX(-2px);
         }
+
+        .autonomous-hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 4rem;
+            padding: 2rem 0;
+        }
+
+        .autonomous-title h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 0;
+            color: #181820;
+            letter-spacing: -2px;
+        }
+
+        .autonomous-description {
+            max-width: 600px;
+            color: #555;
+            font-size: 1.15rem;
+            line-height: 1.7;
+        }
     </style>
 </head>
 <body>
@@ -182,6 +206,20 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
                     <i class="fas fa-exclamation-circle"></i> <?= $error ?>
                 </div>
             <?php endif; ?>
+
+            <div class="autonomous-hero">
+                <div class="autonomous-title">
+                    <h1>Autonomous Navigation</h1>
+                </div>
+                <div class="autonomous-description">
+                    <p>
+                        Autonomous navigation enables vehicles and robots to move through environments without human intervention. Leveraging advanced sensors, AI algorithms, and real-time data processing, these systems can perceive their surroundings, plan optimal paths, and avoid obstacles efficiently.
+                    </p>
+                    <p>
+                        This technology is at the core of self-driving cars, drones, and mobile robots, revolutionizing industries by improving safety, efficiency, and accessibility. Ongoing research continues to enhance the reliability and adaptability of autonomous navigation in complex, dynamic environments.
+                    </p>
+                </div>
+            </div>
 
             <form method="POST" action="">
                 <div class="form-group">

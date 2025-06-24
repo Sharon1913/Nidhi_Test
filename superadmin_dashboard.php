@@ -319,22 +319,20 @@ $all_users_query = "SELECT employee_id, email, role FROM users WHERE role IN ('u
 $all_users_result = mysqli_query($conn, $all_users_query);
 
 // Fetch UGV projects
-$ugv_query = "SELECT p.*, COUNT(DISTINCT pa.employee_id) as user_count 
-              FROM projects p 
-              LEFT JOIN project_assignments pa ON p.id = pa.project_id 
-              WHERE p.category = 'UGV' 
-              GROUP BY p.id 
-              ORDER BY p.created_at DESC";
-$ugv_result = mysqli_query($conn, $ugv_query);
+$ugv_result = mysqli_query($conn, "SELECT p.*, COUNT(DISTINCT pa.employee_id) as user_count 
+                              FROM projects p 
+                              LEFT JOIN project_assignments pa ON p.id = pa.project_id 
+                              WHERE p.category = 'UGV' 
+                              GROUP BY p.id 
+                              ORDER BY p.name ASC");
 
 // Fetch UAV projects
-$uav_query = "SELECT p.*, COUNT(DISTINCT pa.employee_id) as user_count 
-              FROM projects p 
-              LEFT JOIN project_assignments pa ON p.id = pa.project_id 
-              WHERE p.category = 'UAV' 
-              GROUP BY p.id 
-              ORDER BY p.created_at DESC";
-$uav_result = mysqli_query($conn, $uav_query);
+$uav_result = mysqli_query($conn, "SELECT p.*, COUNT(DISTINCT pa.employee_id) as user_count 
+                              FROM projects p 
+                              LEFT JOIN project_assignments pa ON p.id = pa.project_id 
+                              WHERE p.category = 'UAV' 
+                              GROUP BY p.id 
+                              ORDER BY p.name ASC");
 
 // Fetch all projects for assignment
 $projects_query = "SELECT id, name FROM projects";
@@ -1414,11 +1412,28 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                             <div class="projects-container">
                                 <?php if (mysqli_num_rows($ugv_result) > 0): ?>
                                     <?php while($project = mysqli_fetch_assoc($ugv_result)): ?>
+                                        <?php
+                                            $status = strtolower($project['status']);
+                                            $status_text = ucfirst($status);
+                                            $due_date = new DateTime($project['due_date']);
+                                            $today = new DateTime();
+                                            $today->setTime(0, 0, 0);
+
+                                            if ($status !== 'completed' && $due_date < $today) {
+                                                $status_class = 'delayed';
+                                                $status_text = 'Delayed';
+                                            } elseif ($status === 'pending' || $status === 'active') {
+                                                $status_class = 'on-going';
+                                                $status_text = 'On-going';
+                                            } else {
+                                                $status_class = $status;
+                                            }
+                                        ?>
                                         <div class="project-card" onclick="viewProject(<?= $project['id'] ?>)">
                                             <div class="project-header">
                                                 <h3><?= htmlspecialchars($project['name']) ?></h3>
-                                                <span class="status-badge status-<?= strtolower($project['status']) ?>">
-                                                    <?= ucfirst($project['status']) ?>
+                                                <span class="status-badge status-<?= $status_class ?>">
+                                                    <?= $status_text ?>
                                                 </span>
                                             </div>
                                             <div class="project-details">
@@ -1439,6 +1454,9 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                                             <div class="project-actions">
                                                 <button class="btn-view" onclick="event.stopPropagation(); viewProject(<?= $project['id'] ?>)">
                                                     <i class="fas fa-eye"></i> View Details
+                                                </button>
+                                                <button class="btn-edit" onclick="event.stopPropagation(); window.location.href='superadmin_edit_project.php?id=<?= $project['id'] ?>'">
+                                                    <i class="fas fa-edit"></i> Edit
                                                 </button>
                                                 <button class="btn-delete" onclick="event.stopPropagation(); if(confirm('Are you sure you want to delete this project?')) window.location.href='superadmin_dashboard.php?delete_project=<?= $project['id'] ?>'">
                                                     <i class="fas fa-trash"></i> Delete
@@ -1465,11 +1483,28 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                             <div class="projects-container">
                                 <?php if (mysqli_num_rows($uav_result) > 0): ?>
                                     <?php while($project = mysqli_fetch_assoc($uav_result)): ?>
+                                        <?php
+                                            $status = strtolower($project['status']);
+                                            $status_text = ucfirst($status);
+                                            $due_date = new DateTime($project['due_date']);
+                                            $today = new DateTime();
+                                            $today->setTime(0, 0, 0);
+
+                                            if ($status !== 'completed' && $due_date < $today) {
+                                                $status_class = 'delayed';
+                                                $status_text = 'Delayed';
+                                            } elseif ($status === 'pending' || $status === 'active') {
+                                                $status_class = 'on-going';
+                                                $status_text = 'On-going';
+                                            } else {
+                                                $status_class = $status;
+                                            }
+                                        ?>
                                         <div class="project-card" onclick="viewProject(<?= $project['id'] ?>)">
                                             <div class="project-header">
                                                 <h3><?= htmlspecialchars($project['name']) ?></h3>
-                                                <span class="status-badge status-<?= strtolower($project['status']) ?>">
-                                                    <?= ucfirst($project['status']) ?>
+                                                <span class="status-badge status-<?= $status_class ?>">
+                                                    <?= $status_text ?>
                                                 </span>
                                             </div>
                                             <div class="project-details">
@@ -1490,6 +1525,9 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                                             <div class="project-actions">
                                                 <button class="btn-view" onclick="event.stopPropagation(); viewProject(<?= $project['id'] ?>)">
                                                     <i class="fas fa-eye"></i> View Details
+                                                </button>
+                                                <button class="btn-edit" onclick="event.stopPropagation(); window.location.href='superadmin_edit_project.php?id=<?= $project['id'] ?>'">
+                                                    <i class="fas fa-edit"></i> Edit
                                                 </button>
                                                 <button class="btn-delete" onclick="event.stopPropagation(); if(confirm('Are you sure you want to delete this project?')) window.location.href='superadmin_dashboard.php?delete_project=<?= $project['id'] ?>'">
                                                     <i class="fas fa-trash"></i> Delete
@@ -1576,42 +1614,6 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             </div>
 
             <!-- Add User/Admin Tab -->
-            <div class="tab-content" id="add-user-admin">
-                <div class="form-container">
-                    <h3>Add New User/Admin</h3>
-                    <?php if (isset($message) && strpos($message, 'added successfully') !== false): ?>
-                        <p class="message-success"><?= htmlspecialchars($message) ?></p>
-                    <?php endif; ?>
-                    <?php if (isset($error)): ?>
-                        <p class="message-error"><?= htmlspecialchars($error) ?></p>
-                    <?php endif; ?>
-                    <form method="POST" class="form-grid">
-                        <input type="hidden" name="add_user_admin" value="1">
-                        <div class="form-group">
-                            <label for="role">Role:</label>
-                            <select name="role" id="role" required>
-                                <option value="admin">Admin</option>
-                                <option value="user">User</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" name="email" id="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="employee_id">Employee ID:</label>
-                            <input type="text" name="employee_id" id="employee_id" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Temporary Password:</label>
-                            <input type="text" name="password" id="password" required>
-                        </div>
-                        <button type="submit">Add User/Admin</button>
-                    </form>
-                </div>
-            </div>
-
-    <!-- Add User/Admin Tab -->
             <div class="tab-content" id="add-user-admin">
                 <div class="form-container">
                     <h3>Add New User/Admin</h3>
