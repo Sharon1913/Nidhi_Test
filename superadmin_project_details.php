@@ -578,27 +578,7 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
         </div>
     </div>
 
-    <!-- Credits Modal -->
-    <div class="credits-modal" id="creditsModal">
-        <div class="credits-modal-content">
-            <div class="credits-modal-header">
-                <h2>Project Contributors</h2>
-                <button class="modal-close" onclick="closeCreditsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="credits-modal-body">
-                <h3>Project Contributors</h3>
-                <ul class="credits-list">
-                    <li>Dr. P. Rajalakshmi <span class="role">Project Director</span></li>
-                    <li>Dr. S. Syam Narayanan <span class="role">Hub Technical Officer</span></li>
-                    <li>Sharon Zipporah Sebastian</li>
-                    <li>Muhammed Nazim</li>
-                </ul>
-                <p>This project represents the collaborative efforts and professional excellence of our multidisciplinary team.</p>
-            </div>
-        </div>
-    </div>
+
 
     <script>
         function viewUserTasks(employee_id, project_id) {
