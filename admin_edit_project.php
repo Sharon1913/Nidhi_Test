@@ -74,7 +74,7 @@ if (!$project) {
 }
 
 // Fetch all users (corrected column name - adjust 'full_name' to match your schema)
-$users_query = "SELECT id, employee_id, first_name FROM users WHERE role = 'user'";
+$users_query = "SELECT id, employee_id, first_name, last_name FROM users WHERE role = 'user'";
 $users_result = mysqli_query($conn, $users_query);
 $users = [];
 while ($row = mysqli_fetch_assoc($users_result)) {
@@ -276,7 +276,7 @@ mysqli_stmt_close($stmt_assigned);
                             <div class="user-checkbox-item">
                                 <label>
                                     <input type="checkbox" name="users[]" value="<?= $user['id'] ?>" <?= in_array($user['id'], $assigned_user_ids) ? 'checked' : '' ?>>
-                                    <?= htmlspecialchars($user['first_name'] ?? '') ?> (<?= htmlspecialchars($user['employee_id'] ?? '') ?>)
+                                    <?= htmlspecialchars(trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))) ?> (<?= htmlspecialchars($user['employee_id'] ?? '') ?>)
                                 </label>
                             </div>
                         <?php endforeach; ?>
