@@ -757,61 +757,148 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
             text-decoration: underline;
         }
 
-        /* Credits Modal */
         .credits-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
 
-        .credits-modal-content {
-            background: var(--white);
-            border-radius: 16px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: var(--shadow-lg);
-            animation: slideUp 0.4s ease-out;
-        }
+.credits-modal-content {
+    background: var(--white);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px; /* Increased width for better layout */
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.4s ease-out;
+}
 
-        .credits-modal-header {
-            padding: 1.5rem 2rem;
-            background: var(--gradient-1);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 16px 16px 0 0;
-        }
+.credits-modal-header {
+    padding: 1.5rem 2rem;
+    background: var(--gradient-1);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 16px 16px 0 0;
+}
 
-        .credits-modal-header h2 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
+.credits-modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
 
-        .credits-modal-body {
-            padding: 2rem;
-            text-align: center;
-        }
+.modal-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
 
-        .credits-list {
-            list-style: none;
-            padding: 0;
-            margin: 1rem 0;
-        }
+.modal-close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 
-        .credits-list li {
-            font-size: 1rem;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
+.credits-modal-body {
+    padding: 2rem;
+    text-align: left; /* Changed from center to left for better readability */
+}
+
+.credits-modal-body h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.credits-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+}
+
+.credits-list li {
+    font-size: 1rem;
+    color: var(--dark);
+    margin-bottom: 0.8rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.credits-list li:last-child {
+    border-bottom: none;
+}
+
+.role {
+    color: #666;
+    font-size: 0.85rem;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.credits-modal-body p {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-style: italic;
+    color: #555;
+    line-height: 1.5;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    
+    .sidebar-toggle {
+        display: block;
+    }
+    
+    .credits-modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .credits-modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .credits-modal-body {
+        padding: 1.5rem;
+    }
+    
+    .credits-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+    }
+}
 
         @media (max-width: 768px) {
             .modal-content {
