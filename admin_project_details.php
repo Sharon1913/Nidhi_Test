@@ -538,13 +538,9 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
                                         <span class="stat-label-small">In Progress:</span>
                                         <span class="stat-value stat-progress"><?= $user['in_progress_tasks'] ?></span>
                                     </div>
-                                    <div class="task-stat">
-                                        <span class="stat-label-small">Pending:</span>
-                                        <span class="stat-value stat-pending"><?= $user['pending_tasks'] ?></span>
-                                    </div>
                                     <?php if ($user['overdue_tasks'] > 0): ?>
                                     <div class="task-stat">
-                                        <span class="stat-label-small">Overdue:</span>
+                                        <span class="stat-label-small">Delayed:</span>
                                         <span class="stat-value stat-overdue"><?= $user['overdue_tasks'] ?></span>
                                     </div>
                                     <?php endif; ?>
