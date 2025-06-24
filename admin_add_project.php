@@ -207,18 +207,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
                 </div>
             <?php endif; ?>
 
-            <div class="autonomous-hero">
-                <div class="autonomous-title">
-                    <h1>Autonomous Navigation</h1>
-                </div>
-                <div class="autonomous-description">
-                    <p>
-                        Autonomous navigation enables vehicles and robots to move through environments without human intervention. Leveraging advanced sensors, AI algorithms, and real-time data processing, these systems can perceive their surroundings, plan optimal paths, and avoid obstacles efficiently.
-                    </p>
-                    <p>
-                        This technology is at the core of self-driving cars, drones, and mobile robots, revolutionizing industries by improving safety, efficiency, and accessibility. Ongoing research continues to enhance the reliability and adaptability of autonomous navigation in complex, dynamic environments.
-                    </p>
-                </div>
+
             </div>
 
             <form method="POST" action="">

@@ -57,8 +57,8 @@ $users_query = "SELECT u.id, u.email,
                 COUNT(CASE WHEN t.due_date < CURDATE() AND t.status != 'completed' THEN 1 END) as overdue_tasks,
                 MAX(t.created_at) as last_task_assigned
                 FROM users u
-                INNER JOIN project_assignments pa ON u.id = pa.employee_id
-                LEFT JOIN tasks t ON u.id = t.employee_id AND t.project_id = ?
+                INNER JOIN project_assignments pa ON u.employee_id = pa.employee_id
+                LEFT JOIN tasks t ON u.employee_id = t.employee_id AND t.project_id = ?
                 WHERE pa.project_id = ? AND LOWER(u.role) NOT IN ('superadmin')
                 GROUP BY u.id, u.email
                 ORDER BY u.email";
@@ -574,6 +574,28 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
                         </div>
                     <?php endif; ?>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credits Modal -->
+    <div class="credits-modal" id="creditsModal">
+        <div class="credits-modal-content">
+            <div class="credits-modal-header">
+                <h2>Project Contributors</h2>
+                <button class="modal-close" onclick="closeCreditsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="credits-modal-body">
+                <h3>Project Contributors</h3>
+                <ul class="credits-list">
+                    <li>Dr. P. Rajalakshmi <span class="role">Project Director</span></li>
+                    <li>Dr. S. Syam Narayanan <span class="role">Hub Technical Officer</span></li>
+                    <li>Sharon Zipporah Sebastian</li>
+                    <li>Muhammed Nazim</li>
+                </ul>
+                <p>This project represents the collaborative efforts and professional excellence of our multidisciplinary team.</p>
             </div>
         </div>
     </div>
