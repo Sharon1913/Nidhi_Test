@@ -190,7 +190,7 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
                     <label for="category">Project Category *</label>
                     <select id="category" name="category" required>
                         <option value="">Select Category</option>
-                        <option value="UGV" <?= $type == 'UGV' ? 'selected' : '' ?>>UGV (Unmanned Ground Vehicle)</option>
+                        <option value="UGV" <?= $type == 'UGV' ? 'selected' : '' ?>>UGV (Autonomous Ground Vehicle)</option>
                         <option value="UAV" <?= $type == 'UAV' ? 'selected' : '' ?>>UAV (Unmanned Aerial Vehicle)</option>
                     </select>
                 </div>
