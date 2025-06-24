@@ -207,7 +207,10 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
                 </div>
             <?php endif; ?>
 
-
+            <div class="autonomous-hero">
+                <div class="autonomous-title">
+                    <h1>Add New Project</h1>
+                </div>
             </div>
 
             <form method="POST" action="">
