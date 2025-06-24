@@ -365,6 +365,23 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
         
+        .btn-edit {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-edit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
         .btn-remove {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
@@ -549,13 +566,9 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
                                         <span class="stat-label-small">In Progress:</span>
                                         <span class="stat-value stat-progress"><?= $user['in_progress_tasks'] ?></span>
                                     </div>
-                                    <div class="task-stat">
-                                        <span class="stat-label-small">Pending:</span>
-                                        <span class="stat-value stat-pending"><?= $user['pending_tasks'] ?></span>
-                                    </div>
                                     <?php if ($user['overdue_tasks'] > 0): ?>
                                     <div class="task-stat">
-                                        <span class="stat-label-small">Overdue:</span>
+                                        <span class="stat-label-small">Delayed:</span>
                                         <span class="stat-value stat-overdue"><?= $user['overdue_tasks'] ?></span>
                                     </div>
                                     <?php endif; ?>
@@ -572,6 +585,9 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
                                     <div>
                                         <button class="btn-view-tasks" onclick="event.stopPropagation(); viewUserTasks(<?= $user['id'] ?>, <?= $project_id ?>)">
                                             <i class="fas fa-eye"></i> View Tasks
+                                        </button>
+                                        <button class="btn-edit" onclick="event.stopPropagation(); window.location.href='superadmin_edit_project.php?id=<?= $project_id ?>&user_id=<?= $user['id'] ?>'">
+                                            <i class="fas fa-edit"></i> Edit
                                         </button>
                                         <button class="btn-remove" onclick="event.stopPropagation(); if(confirm('Are you sure you want to remove this member from the project?')) window.location.href='superadmin_project_details.php?id=<?= $project_id ?>&remove_user=<?= $user['id'] ?>&project_id=<?= $project_id ?>'">
                                             <i class="fas fa-user-times"></i> Remove
@@ -593,8 +609,6 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
             </div>
         </div>
     </div>
-
-
 
     <script>
         function viewUserTasks(employee_id, project_id) {
