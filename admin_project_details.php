@@ -50,6 +50,22 @@ if (!$project) {
     exit();
 }
 
+// Determine status for badge
+$status = strtolower($project['status']);
+$due_date = new DateTime($project['due_date']);
+$today = new DateTime();
+$today->setTime(0, 0, 0);
+if ($status === 'completed') {
+    $status_class = 'completed';
+    $status_text = 'Completed';
+} elseif ($due_date < $today) {
+    $status_class = 'delayed';
+    $status_text = 'Delayed';
+} else {
+    $status_class = 'on-going';
+    $status_text = 'On-going';
+}
+
 // Fetch users assigned to this project with their task counts and status, excluding admins and superadmins
 $users_query = "SELECT u.id, u.email,
                 COUNT(t.id) as total_tasks,
@@ -452,8 +468,8 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
                                 <i class="fas fa-calendar-check"></i>
                                 <strong>Due Date:</strong> <?= date('M d, Y', strtotime($project['due_date'])) ?>
                             </span>
-                            <span class="status-badge status-<?= strtolower($project['status']) ?>">
-                                <?= ucfirst($project['status']) ?>
+                            <span class="status-badge status-<?= $status_class ?>">
+                                <?= $status_text ?>
                             </span>
                         </div>
                     </div>
