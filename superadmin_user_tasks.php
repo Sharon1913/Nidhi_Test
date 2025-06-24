@@ -154,7 +154,18 @@ $stats = mysqli_fetch_assoc($stats_result);
         .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
         .task-title { font-size: 1.1rem; font-weight: 600; color: #2d3748; margin: 0; }
         .task-actions { display: flex; gap: 0.5rem; }
-        .task-status { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .task-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            min-width: 90px;
+        }
         .status-pending { background: #bee3f8; color: #2c5282; }
         .status-in_progress { background: #feebc8; color: #c05621; }
         .status-completed { background: #c6f6d5; color: #22543d; }
