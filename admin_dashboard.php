@@ -998,7 +998,7 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                         <div class="notification-message">
                             Name: <?= htmlspecialchars($notification['display_name']) ?><br>
                             Employee ID: <?= htmlspecialchars($notification['employee_id'] ?? 'N/A') ?><br>
-                            New upload for Task ID <?= $notification['task_id'] ?> by <?= htmlspecialchars($notification['display_name']) ?> (Status: <?= htmlspecialchars($notification['message']) ?>)
+                            Status (Claimed to be): <?= htmlspecialchars($notification['message']) ?>
                         </div>
                         <?php if ($notification['drive_link']): ?>
                             <a href="<?= htmlspecialchars($notification['drive_link']) ?>" class="notification-file" target="_blank">View Drive Link</a>
@@ -1283,7 +1283,7 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                             <div class="notification-message">
                                 Name: ${notification.display_name}<br>
                                 Employee ID: ${notification.employee_id}<br>
-                                New upload for Task ID ${notification.task_id} by ${notification.display_name} (Status: ${notification.message})
+                                Status (Claimed to be): ${notification.message}
                             </div>
                             ${notification.drive_link ? `<a href="${notification.drive_link}" class="notification-file" target="_blank">View Drive Link</a>` : 
                               notification.file_path ? `<a href="${notification.file_path}" class="notification-file" target="_blank">View Uploaded File</a>` : ''}

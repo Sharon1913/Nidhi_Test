@@ -1414,7 +1414,7 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                                 ?>
                                 Name: <?= htmlspecialchars($display_name) ?><br>
                                 Employee ID: <?= htmlspecialchars($notification['employee_id'] ?? 'N/A') ?><br>
-                                New upload for Task ID <?= $notification['task_id'] ?> by <?= htmlspecialchars($display_name) ?> (Status: <?= htmlspecialchars($notification['message']) ?>)
+                                Status (Claimed to be): <?= htmlspecialchars($notification['message']) ?>
                             </div>
                             <?php if ($notification['file_path']): ?>
                                 <a href="<?= htmlspecialchars($notification['file_path']) ?>" class="notification-file" target="_blank">View Uploaded File</a>
