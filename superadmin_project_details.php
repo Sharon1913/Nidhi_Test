@@ -65,7 +65,7 @@ if ($status === 'completed') {
 }
 
 // Fetch users assigned to this project with their task counts and status, excluding superadmins
-$users_query = "SELECT u.id, u.email,
+$users_query = "SELECT u.id, u.employee_id, u.email,
                 COUNT(t.id) as total_tasks,
                 COUNT(CASE WHEN t.status = 'completed' THEN 1 END) as completed_tasks,
                 COUNT(CASE WHEN t.status = 'in_progress' THEN 1 END) as in_progress_tasks,
@@ -76,7 +76,7 @@ $users_query = "SELECT u.id, u.email,
                 INNER JOIN project_assignments pa ON u.employee_id = pa.employee_id
                 LEFT JOIN tasks t ON u.employee_id = t.employee_id AND t.project_id = ?
                 WHERE pa.project_id = ? AND LOWER(u.role) NOT IN ('superadmin')
-                GROUP BY u.id, u.email
+                GROUP BY u.id, u.employee_id, u.email
                 ORDER BY u.email";
 
 $stmt = mysqli_prepare($conn, $users_query);
@@ -570,7 +570,7 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
                                         <button class="btn-view-tasks" onclick="event.stopPropagation(); viewUserTasks(<?= $user['id'] ?>, <?= $project_id ?>)">
                                             <i class="fas fa-eye"></i> View Tasks
                                         </button>
-                                        <button class="btn-remove" onclick="event.stopPropagation(); if(confirm('Are you sure you want to remove this member from the project?')) window.location.href='superadmin_project_details.php?id=<?= $project_id ?>&remove_user=<?= $user['id'] ?>&project_id=<?= $project_id ?>'">
+                                        <button class="btn-remove" onclick="event.stopPropagation(); if(confirm('Are you sure you want to remove this member from the project?')) window.location.href='superadmin_project_details.php?id=<?= $project_id ?>&remove_user=<?= $user['employee_id'] ?>&project_id=<?= $project_id ?>'">
                                             <i class="fas fa-user-times"></i> Remove
                                         </button>
                                     </div>
