@@ -1414,7 +1414,13 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                                 ?>
                                 Name: <?= htmlspecialchars($display_name) ?><br>
                                 Employee ID: <?= htmlspecialchars($notification['employee_id'] ?? 'N/A') ?><br>
-                                Status (Claimed to be): <?= htmlspecialchars($notification['message']) ?>
+                                <?php
+                                $status_message = $notification['message'];
+                                if (preg_match('/\\(Status: (.*?)\\)\\. Please review\\./', $status_message, $matches)) {
+                                    $status_message = $matches[1] . '. Please review.';
+                                }
+                                ?>
+                                Status (Claimed to be): <?= htmlspecialchars($status_message) ?>
                             </div>
                             <?php if ($notification['file_path']): ?>
                                 <a href="<?= htmlspecialchars($notification['file_path']) ?>" class="notification-file" target="_blank">View Uploaded File</a>
