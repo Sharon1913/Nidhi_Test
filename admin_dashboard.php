@@ -949,7 +949,7 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                 </a>
             </li>
             <li class="nav-item">
-                <a href="admin_upload_history.php" class="nav-link" data-section="upload-history">
+                <a href="#upload-history" class="nav-link" data-section="upload-history">
                     <i class="fas fa-history"></i>
                     <span>Upload History</span>
                 </a>
