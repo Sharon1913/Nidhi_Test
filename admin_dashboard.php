@@ -949,7 +949,7 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#upload-history" class="nav-link" data-section="upload-history">
+                <a href="admin_upload_history.php" class="nav-link" data-section="upload-history">
                     <i class="fas fa-history"></i>
                     <span>Upload History</span>
                 </a>
@@ -1223,86 +1223,6 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                     </div>
                 </div>
             </div>
-
-            <!-- Upload History Section -->
-            <div id="upload-history-section" class="content-section" style="display: none;">
-                <div class="card fade-in">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i class="fas fa-history"></i>
-                            Upload History
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <?php
-                        // Fetch all uploads with project, task, user info
-                        $query = "
-                            SELECT fu.*, t.title AS task_title, p.name AS project_name, u.first_name, u.last_name, u.employee_id, fu.status AS admin_status, fu.upload_type, fu.file_description, t.status AS claimed_status
-                            FROM file_uploads fu
-                            LEFT JOIN tasks t ON fu.task_id = t.id
-                            LEFT JOIN projects p ON t.project_id = p.id
-                            LEFT JOIN users u ON fu.employee_id = u.employee_id
-                            ORDER BY fu.uploaded_at DESC
-                        ";
-                        $result = mysqli_query($conn, $query);
-                        ?>
-                        <input type="text" id="uploadHistorySearch" class="search-bar" onkeyup="filterUploadHistoryTable()" placeholder="Search uploads...">
-                        <div class="table-container">
-                            <table class="modern-table" id="uploadHistoryTable">
-                                <thead>
-                                    <tr>
-                                        <th>Project and Task</th>
-                                        <th>Name</th>
-                                        <th>Employee ID</th>
-                                        <th>Type</th>
-                                        <th>Description</th>
-                                        <th>Date and Time</th>
-                                        <th>Claimed to be</th>
-                                        <th>Status</th>
-                                        <th>View Link</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    if ($result && mysqli_num_rows($result) > 0) {
-                                        while ($row = mysqli_fetch_assoc($result)) {
-                                            $full_name = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
-                                            $display_name = $full_name ?: $row['employee_id'];
-                                            $type = $row['upload_type'] ?? '-';
-                                            $desc = $row['file_description'] ?? '-';
-                                            $claimed = $row['claimed_status'] ?? '-';
-                                            $admin_status = $row['admin_status'] ?? '-';
-                                            $date = date('M d, Y H:i', strtotime($row['uploaded_at']));
-                                            echo '<tr>';
-                                            echo '<td>' . htmlspecialchars(($row['project_name'] ?? '-') . ' - ' . ($row['task_title'] ?? '-')) . '</td>';
-                                            echo '<td>' . htmlspecialchars($display_name) . '</td>';
-                                            echo '<td>' . htmlspecialchars($row['employee_id'] ?? '-') . '</td>';
-                                            echo '<td>' . htmlspecialchars(ucfirst($type)) . '</td>';
-                                            echo '<td>' . htmlspecialchars($desc) . '</td>';
-                                            echo '<td>' . $date . '</td>';
-                                            echo '<td>' . htmlspecialchars(ucfirst($claimed)) . '</td>';
-                                            echo '<td class="' . ($admin_status === 'accepted' ? 'status-accepted' : ($admin_status === 'rejected' ? 'status-rejected' : '')) . '">' . htmlspecialchars(ucfirst($admin_status)) . '</td>';
-                                            echo '<td>';
-                                            if (!empty($row['drive_link'])) {
-                                                echo '<a href="' . htmlspecialchars($row['drive_link']) . '" class="view-link" target="_blank">View Link</a>';
-                                            } elseif (!empty($row['file_path'])) {
-                                                echo '<a href="' . htmlspecialchars($row['file_path']) . '" class="view-link" target="_blank">View Link</a>';
-                                            } else {
-                                                echo 'N/A';
-                                            }
-                                            echo '</td>';
-                                            echo '</tr>';
-                                        }
-                                    } else {
-                                        echo '<tr><td colspan="9">No uploads found.</td></tr>';
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Footer -->
@@ -1504,11 +1424,6 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
             } else if (section === 'assign-task') {
                 window.location.href = 'admin_assign_task.php';
                 return;
-            } else if (section === 'upload-history') {
-                sections.forEach(section => section.style.display = 'none');
-                document.getElementById('upload-history-section').style.display = 'block';
-                document.getElementById('upload-history-section').classList.add('fade-in');
-                return;
             }
             
             // Remove active class from all links
@@ -1552,24 +1467,6 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                 dropdown.classList.remove('active');
             }
         });
-
-        function filterUploadHistoryTable() {
-            const input = document.getElementById('uploadHistorySearch');
-            const filter = input.value.toLowerCase();
-            const table = document.getElementById('uploadHistoryTable');
-            const trs = table.getElementsByTagName('tr');
-            for (let i = 1; i < trs.length; i++) {
-                let show = false;
-                const tds = trs[i].getElementsByTagName('td');
-                for (let j = 0; j < tds.length; j++) {
-                    if (tds[j].textContent.toLowerCase().indexOf(filter) > -1) {
-                        show = true;
-                        break;
-                    }
-                }
-                trs[i].style.display = show ? '' : 'none';
-            }
-        }
     </script>
 </body>
 </html>
