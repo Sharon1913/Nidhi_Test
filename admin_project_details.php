@@ -18,8 +18,9 @@ if ($project_id == 0) {
 
 // Handle member removal
 if (isset($_GET['remove_user']) && isset($_GET['project_id'])) {
-    $employee_id = intval($_GET['remove_user']);
+    $employee_id = trim($_GET['remove_user']);
     $project_id = intval($_GET['project_id']);
+    error_log("Trying to remove employee_id: $employee_id from project_id: $project_id");
     
     // Delete tasks Warning: Undefined variable $conn in /home/admin_project_details.php on line 27 assigned to this user for this project
     $delete_tasks = "DELETE FROM tasks WHERE employee_id = ? AND project_id = ?";

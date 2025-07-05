@@ -18,7 +18,7 @@ if ($project_id == 0) {
 
 // Handle member removal
 if (isset($_GET['remove_user']) && isset($_GET['project_id'])) {
-    $employee_id = intval($_GET['remove_user']);
+    $employee_id = $_GET['remove_user'];
     $project_id = intval($_GET['project_id']);
     
     // Delete tasks assigned to this user for this project
