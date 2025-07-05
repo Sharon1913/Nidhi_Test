@@ -47,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 
     $notifications = [];
     while ($notification = mysqli_fetch_assoc($notifications_result)) {
+        $full_name = trim(($notification['first_name'] ?? '') . ' ' . ($notification['last_name'] ?? ''));
+        $display_name = $full_name ?: ($notification['email'] ?? $notification['employee_id']);
         $notifications[] = [
             'id' => $notification['id'],
             'project_name' => htmlspecialchars($notification['project_name']),
@@ -56,7 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
             'message' => htmlspecialchars($notification['message']),
             'uploaded_at' => date('M d, Y H:i', strtotime($notification['uploaded_at'])),
             'file_path' => $notification['file_path'] ? htmlspecialchars($notification['file_path']) : null,
-            'drive_link' => $notification['drive_link'] ? htmlspecialchars($notification['drive_link']) : null
+            'drive_link' => $notification['drive_link'] ? htmlspecialchars($notification['drive_link']) : null,
+            'display_name' => htmlspecialchars($display_name)
         ];
     }
 
@@ -993,8 +996,9 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                             </span>
                         </div>
                         <div class="notification-message">
+                            Name: <?= htmlspecialchars($notification['display_name']) ?><br>
                             Employee ID: <?= htmlspecialchars($notification['employee_id'] ?? 'N/A') ?><br>
-                            <?= htmlspecialchars($notification['message']) ?>
+                            New upload for Task ID <?= $notification['task_id'] ?> by <?= htmlspecialchars($notification['display_name']) ?> (Status: <?= htmlspecialchars($notification['message']) ?>)
                         </div>
                         <?php if ($notification['drive_link']): ?>
                             <a href="<?= htmlspecialchars($notification['drive_link']) ?>" class="notification-file" target="_blank">View Drive Link</a>
@@ -1277,8 +1281,9 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                                 </span>
                             </div>
                             <div class="notification-message">
+                                Name: ${notification.display_name}<br>
                                 Employee ID: ${notification.employee_id}<br>
-                                ${notification.message}
+                                New upload for Task ID ${notification.task_id} by ${notification.display_name} (Status: ${notification.message})
                             </div>
                             ${notification.drive_link ? `<a href="${notification.drive_link}" class="notification-file" target="_blank">View Drive Link</a>` : 
                               notification.file_path ? `<a href="${notification.file_path}" class="notification-file" target="_blank">View Uploaded File</a>` : ''}

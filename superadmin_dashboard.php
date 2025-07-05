@@ -1408,8 +1408,13 @@ $user_count = mysqli_fetch_assoc($user_count_result)['count'];
                                 </span>
                             </div>
                             <div class="notification-message">
-                                Employee ID: <?= htmlspecialchars($notification['employee_id']) ?><br>
-                                <?= htmlspecialchars($notification['message']) ?>
+                                <?php
+                                $full_name = trim(($notification['first_name'] ?? '') . ' ' . ($notification['last_name'] ?? ''));
+                                $display_name = $full_name ?: ($notification['email'] ?? $notification['employee_id']);
+                                ?>
+                                Name: <?= htmlspecialchars($display_name) ?><br>
+                                Employee ID: <?= htmlspecialchars($notification['employee_id'] ?? 'N/A') ?><br>
+                                New upload for Task ID <?= $notification['task_id'] ?> by <?= htmlspecialchars($display_name) ?> (Status: <?= htmlspecialchars($notification['message']) ?>)
                             </div>
                             <?php if ($notification['file_path']): ?>
                                 <a href="<?= htmlspecialchars($notification['file_path']) ?>" class="notification-file" target="_blank">View Uploaded File</a>
