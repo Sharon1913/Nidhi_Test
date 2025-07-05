@@ -18,15 +18,16 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 require_once 'db.php'; // Your database connection file
 
-// Fetch uploaded files history
-$upload_query = "
-    SELECT fu.*, t.title AS task_title, p.name AS project_name, u.first_name, u.last_name, u.employee_id
+// Fetch all uploads with project, task, user info
+$query = "
+    SELECT fu.*, t.title AS task_title, p.name AS project_name, u.first_name, u.last_name, u.employee_id, fu.status AS admin_status
     FROM file_uploads fu
     JOIN tasks t ON fu.task_id = t.id
     JOIN projects p ON t.project_id = p.id
     JOIN users u ON fu.employee_id = u.employee_id
-    ORDER BY fu.uploaded_at DESC";
-$upload_result = mysqli_query($conn, $upload_query);
+    ORDER BY fu.uploaded_at DESC
+";
+$result = mysqli_query($conn, $query);
 ?>
 
 <!DOCTYPE html>
@@ -513,7 +514,35 @@ $upload_result = mysqli_query($conn, $upload_query);
                 transform: translateY(0);
             }
         }
+
+        .search-bar { margin-bottom: 1rem; padding: 0.5rem; width: 100%; max-width: 400px; border-radius: 8px; border: 1px solid #ccc; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left; }
+        th { background: #f3f4f6; }
+        tr:nth-child(even) { background: #f9fafb; }
+        .view-link { color: #3b82f6; text-decoration: underline; }
+        .status-accepted { color: #10b981; font-weight: bold; }
+        .status-rejected { color: #ef4444; font-weight: bold; }
     </style>
+    <script>
+    function filterTable() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('uploadTable');
+        const trs = table.getElementsByTagName('tr');
+        for (let i = 1; i < trs.length; i++) {
+            let show = false;
+            const tds = trs[i].getElementsByTagName('td');
+            for (let j = 0; j < tds.length; j++) {
+                if (tds[j].textContent.toLowerCase().indexOf(filter) > -1) {
+                    show = true;
+                    break;
+                }
+            }
+            trs[i].style.display = show ? '' : 'none';
+        }
+    }
+    </script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -610,55 +639,59 @@ $upload_result = mysqli_query($conn, $upload_query);
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if (mysqli_num_rows($upload_result) > 0): ?>
-                        <div class="table-container">
-                            <table class="modern-table">
-                                <thead>
+                    <input type="text" id="searchInput" class="search-bar" onkeyup="filterTable()" placeholder="Search uploads...">
+                    <div class="table-container">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Project and Task</th>
+                                    <th>Name</th>
+                                    <th>Employee ID</th>
+                                    <th>Status (Claimed to be)</th>
+                                    <th>Date and Time</th>
+                                    <th>View Link</th>
+                                    <th>Status (Admin)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                                    <?php
+                                        $full_name = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+                                        $display_name = $full_name ?: $row['employee_id'];
+                                        $status_claimed = $row['status_claimed'] ?? '';
+                                        // Try to extract status from remarks/message if needed
+                                        if (empty($status_claimed) && isset($row['remarks'])) {
+                                            if (preg_match('/\\(Status: (.*?)\\)\\. Please review\\./', $row['remarks'], $matches)) {
+                                                $status_claimed = $matches[1] . '. Please review.';
+                                            } else {
+                                                $status_claimed = $row['remarks'];
+                                            }
+                                        }
+                                        $admin_status = $row['admin_status'] ?? '';
+                                    ?>
                                     <tr>
-                                        <th>Project</th>
-                                        <th>Task</th>
-                                        <th>Employee</th>
-                                        <th>File Name/Link</th>
-                                        <th>Type</th>
-                                        <th>Description</th>
-                                        <th>Upload Date</th>
-                                        <th>Action</th>
+                                        <td><?= htmlspecialchars($row['project_name'] . ' - ' . $row['task_title']) ?></td>
+                                        <td><?= htmlspecialchars($display_name) ?></td>
+                                        <td><?= htmlspecialchars($row['employee_id']) ?></td>
+                                        <td><?= htmlspecialchars($status_claimed) ?></td>
+                                        <td><?= date('M d, Y H:i', strtotime($row['uploaded_at'])) ?></td>
+                                        <td>
+                                            <?php if (!empty($row['drive_link'])): ?>
+                                                <a href="<?= htmlspecialchars($row['drive_link']) ?>" class="view-link" target="_blank">View Link</a>
+                                            <?php elseif (!empty($row['file_path'])): ?>
+                                                <a href="<?= htmlspecialchars($row['file_path']) ?>" class="view-link" target="_blank">View Link</a>
+                                            <?php else: ?>
+                                                N/A
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="<?= $admin_status === 'accepted' ? 'status-accepted' : ($admin_status === 'rejected' ? 'status-rejected' : '') ?>">
+                                            <?= htmlspecialchars(ucfirst($admin_status)) ?>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while ($upload = mysqli_fetch_assoc($upload_result)): ?>
-                                        <tr>
-                                            <td><strong><?php echo htmlspecialchars($upload['project_name']); ?></strong></td>
-                                            <td><?php echo htmlspecialchars($upload['task_title']); ?></td>
-                                            <td><?php echo htmlspecialchars($upload['employee_id'] . ' - ' . $upload['first_name'] . ' ' . $upload['last_name']); ?></td>
-                                            <td>
-                                                <?php if ($upload['drive_link']): ?>
-                                                    <a href="<?php echo htmlspecialchars($upload['drive_link']); ?>" target="_blank">View Drive Link</a>
-                                                <?php else: ?>
-                                                    <?php echo htmlspecialchars(basename($upload['file_path'])); ?>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?php echo ucfirst(str_replace('_', ' ', $upload['upload_type'])); ?></td>
-                                            <td><?php echo htmlspecialchars($upload['file_description'] ?? '-'); ?></td>
-                                            <td><?php echo date('M d, Y H:i', strtotime($upload['uploaded_at'])); ?></td>
-                                            <td>
-                                                <?php if ($upload['drive_link']): ?>
-                                                    <a href="<?php echo htmlspecialchars($upload['drive_link']); ?>" class="btn-view" style="padding: 0.5rem 1rem;" target="_blank">View</a>
-                                                <?php else: ?>
-                                                    <a href="<?php echo htmlspecialchars($upload['file_path']); ?>" class="btn-view" style="padding: 0.5rem 1rem;" download>Download</a>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <div style="text-align: center; padding: 3rem; color: var(--gray);">
-                            <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                            <p>No files uploaded yet.</p>
-                        </div>
-                    <?php endif; ?>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
