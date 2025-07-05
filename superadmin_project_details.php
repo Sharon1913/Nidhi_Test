@@ -65,7 +65,7 @@ if ($status === 'completed') {
 }
 
 // Fetch users assigned to this project with their task counts and status, excluding superadmins
-$users_query = "SELECT u.id, u.employee_id, u.email,
+$users_query = "SELECT u.id, u.employee_id, u.first_name, u.last_name, u.email,
                 COUNT(t.id) as total_tasks,
                 COUNT(CASE WHEN t.status = 'completed' THEN 1 END) as completed_tasks,
                 COUNT(CASE WHEN t.status = 'in_progress' THEN 1 END) as in_progress_tasks,
@@ -76,7 +76,7 @@ $users_query = "SELECT u.id, u.employee_id, u.email,
                 INNER JOIN project_assignments pa ON u.employee_id = pa.employee_id
                 LEFT JOIN tasks t ON u.employee_id = t.employee_id AND t.project_id = ?
                 WHERE pa.project_id = ? AND LOWER(u.role) NOT IN ('superadmin')
-                GROUP BY u.id, u.employee_id, u.email
+                GROUP BY u.id, u.employee_id, u.first_name, u.last_name, u.email
                 ORDER BY u.email";
 
 $stmt = mysqli_prepare($conn, $users_query);
@@ -532,8 +532,8 @@ $progress_percentage = $progress['total_tasks'] > 0 ?
                                         <?= strtoupper(substr($user['email'], 0, 2)) ?>
                                     </div>
                                     <div class="user-info">
-                                        <h3><?= htmlspecialchars($user['email']) ?></h3>
-                                        <p><?= htmlspecialchars($user['email']) ?></p>
+                                        <h3><?= htmlspecialchars(trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))) ?: htmlspecialchars($user['email']) ?></h3>
+                                        <p style="font-size: 0.95em; color: #888;"> <?= htmlspecialchars($user['email']) ?> </p>
                                     </div>
                                 </div>
 
