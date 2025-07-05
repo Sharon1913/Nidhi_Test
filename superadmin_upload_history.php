@@ -22,9 +22,9 @@ require_once 'db.php'; // Your database connection file
 $query = "
     SELECT fu.*, t.title AS task_title, p.name AS project_name, u.first_name, u.last_name, u.employee_id, fu.status AS admin_status
     FROM file_uploads fu
-    JOIN tasks t ON fu.task_id = t.id
-    JOIN projects p ON t.project_id = p.id
-    JOIN users u ON fu.employee_id = u.employee_id
+    LEFT JOIN tasks t ON fu.task_id = t.id
+    LEFT JOIN projects p ON t.project_id = p.id
+    LEFT JOIN users u ON fu.employee_id = u.employee_id
     ORDER BY fu.uploaded_at DESC
 ";
 $result = mysqli_query($conn, $query);
@@ -359,6 +359,9 @@ $result = mysqli_query($conn, $query);
                             </tr>
                         </thead>
                         <tbody>
+                            <?php if (mysqli_num_rows($result) == 0): ?>
+                                <tr><td colspan="7">No uploads found.</td></tr>
+                            <?php endif; ?>
                             <?php while ($row = mysqli_fetch_assoc($result)): ?>
                                 <?php
                                     $full_name = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
