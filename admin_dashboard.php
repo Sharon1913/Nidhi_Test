@@ -26,11 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     // Use a subquery to get the latest notification for each task_id
     $notifications_query = "
         SELECT n.id, n.project_id, n.task_id, n.message, n.uploaded_at, 
-               p.name AS project_name, t.title AS task_title, fu.file_path, fu.drive_link, fu.employee_id
+               p.name AS project_name, t.title AS task_title, fu.file_path, fu.drive_link, fu.employee_id,
+               u.first_name, u.last_name, u.email
         FROM notifications n
         JOIN projects p ON n.project_id = p.id
         JOIN tasks t ON n.task_id = t.id
         LEFT JOIN file_uploads fu ON n.task_id = fu.task_id
+        LEFT JOIN users u ON fu.employee_id = u.employee_id
         WHERE n.recipient_role = 'admin' AND n.is_read = FALSE
         AND n.id = (
             SELECT n2.id
@@ -230,11 +232,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 // Fetch notifications with file details (updated to avoid GROUP BY issue)
 $notifications_query = "
     SELECT n.id, n.project_id, n.task_id, n.message, n.uploaded_at, 
-           p.name AS project_name, t.title AS task_title, fu.file_path, fu.drive_link, fu.employee_id
+           p.name AS project_name, t.title AS task_title, fu.file_path, fu.drive_link, fu.employee_id,
+           u.first_name, u.last_name, u.email
     FROM notifications n
     JOIN projects p ON n.project_id = p.id
     JOIN tasks t ON n.task_id = t.id
     LEFT JOIN file_uploads fu ON n.task_id = fu.task_id
+    LEFT JOIN users u ON fu.employee_id = u.employee_id
     WHERE n.recipient_role = 'admin' AND n.is_read = FALSE
     AND n.id = (
         SELECT n2.id

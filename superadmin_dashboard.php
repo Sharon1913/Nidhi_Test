@@ -297,13 +297,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_task'])) {
 
 // Fetch notifications
 $notifications_query = "SELECT n.id, n.project_id, n.task_id, n.message, n.uploaded_at, 
-                       p.name AS project_name, t.title AS task_title, fu.file_path, fu.employee_id
-                       FROM notifications n
-                       JOIN projects p ON n.project_id = p.id
-                       JOIN tasks t ON n.task_id = t.id
-                       LEFT JOIN file_uploads fu ON n.task_id = fu.task_id
-                       WHERE n.recipient_role = 'superadmin' AND n.is_read = FALSE
-                       ORDER BY n.uploaded_at DESC";
+           p.name AS project_name, t.title AS task_title, fu.file_path, fu.employee_id,
+           u.first_name, u.last_name, u.email
+    FROM notifications n
+    JOIN projects p ON n.project_id = p.id
+    JOIN tasks t ON n.task_id = t.id
+    LEFT JOIN file_uploads fu ON n.task_id = fu.task_id
+    LEFT JOIN users u ON fu.employee_id = u.employee_id
+    WHERE n.recipient_role = 'superadmin' AND n.is_read = FALSE
+    ORDER BY n.uploaded_at DESC";
 $notifications_result = mysqli_query($conn, $notifications_query);
 
 // Fetch admins
