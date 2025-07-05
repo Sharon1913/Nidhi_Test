@@ -19,16 +19,17 @@ if ($project_id === 0) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $project_id_post = intval($_POST['project_id']);
     $name = mysqli_real_escape_string($conn, $_POST['name']);
+    $due_date = mysqli_real_escape_string($conn, $_POST['due_date']);
     $assigned_users = isset($_POST['users']) ? $_POST['users'] : [];
 
     // Start transaction
     mysqli_begin_transaction($conn);
 
     try {
-        // Update project name
-        $query_update = "UPDATE projects SET name = ? WHERE id = ?";
+        // Update project name and due date
+        $query_update = "UPDATE projects SET name = ?, due_date = ? WHERE id = ?";
         $stmt_update = mysqli_prepare($conn, $query_update);
-        mysqli_stmt_bind_param($stmt_update, "si", $name, $project_id_post);
+        mysqli_stmt_bind_param($stmt_update, "ssi", $name, $due_date, $project_id_post);
         mysqli_stmt_execute($stmt_update);
         mysqli_stmt_close($stmt_update);
 
@@ -267,6 +268,11 @@ mysqli_stmt_close($stmt_assigned);
                 <div class="form-group">
                     <label for="name">Project Name *</label>
                     <input type="text" id="name" name="name" value="<?= htmlspecialchars($project['name']) ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="due_date">Due Date</label>
+                    <input type="date" id="due_date" name="due_date" value="<?= htmlspecialchars($project['due_date'] ?? '') ?>">
                 </div>
 
                 <div class="form-group">
