@@ -1268,16 +1268,14 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                     <table id="upload-history-table" style="width:100%; border-collapse:collapse; background:white;">
                         <thead>
                             <tr>
+                                <th>Name & Employee ID</th>
                                 <th>Project</th>
                                 <th>Task</th>
-                                <th>File Name/Link</th>
+                                <th>Uploaded File/Link</th>
                                 <th>Type</th>
-                                <th>Description</th>
-                                <th>Upload Date</th>
+                                <th>Date and Time</th>
                                 <th>Claimed to be</th>
                                 <th>Status</th>
-                                <th>Uploader</th>
-                                <th>Employee ID</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1544,11 +1542,14 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                 const tbody = document.querySelector('#upload-history-table tbody');
                 if (!tbody) return;
                 tbody.innerHTML = '';
-                if (data.uploads.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#888;">No uploads found.</td></tr>';
+                if (!data.uploads || data.uploads.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#888;">No uploads found.</td></tr>';
                     return;
                 }
                 data.uploads.forEach(upload => {
+                    // Name & Employee ID in one cell
+                    let nameCell = `<div><strong>${upload.uploader}</strong><br><span style='color:#888;'>${upload.employee_id}</span></div>`;
+                    // Uploaded File/Link
                     let fileCell = '';
                     if (upload.drive_link) {
                         fileCell = `<a href="${upload.drive_link}" target="_blank">Drive Link</a>`;
@@ -1559,16 +1560,14 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                     }
                     tbody.innerHTML += `
                         <tr>
+                            <td>${nameCell}</td>
                             <td>${upload.project_name}</td>
                             <td>${upload.task_title}</td>
                             <td>${fileCell}</td>
                             <td>${upload.type}</td>
-                            <td>${upload.description || '-'}</td>
                             <td>${upload.uploaded_at}</td>
                             <td>${upload.claimed_status || '-'}</td>
                             <td>${upload.admin_status || '-'}</td>
-                            <td>${upload.uploader}</td>
-                            <td>${upload.employee_id}</td>
                         </tr>
                     `;
                 });
