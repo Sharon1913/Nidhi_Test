@@ -1261,27 +1261,40 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                 </div>
             </div>
 
-            <!-- Upload History Section (hidden by default) -->
+            <!-- Upload History Section (styled like user_dashboard.php) -->
             <div id="upload-history-section" class="content-section" style="display: none;">
-                <h2>Upload History</h2>
-                <div style="overflow-x:auto;">
-                    <table id="upload-history-table" style="width:100%; border-collapse:collapse; background:white;">
-                        <thead>
-                            <tr>
-                                <th>Name & Employee ID</th>
-                                <th>Project</th>
-                                <th>Task</th>
-                                <th>Uploaded File/Link</th>
-                                <th>Type</th>
-                                <th>Date and Time</th>
-                                <th>Claimed to be</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Data will be inserted here by JS -->
-                        </tbody>
-                    </table>
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-history"></i>
+                            Upload History
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="modern-table" id="upload-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name & Employee ID</th>
+                                        <th>Project</th>
+                                        <th>Task</th>
+                                        <th>Uploaded File/Link</th>
+                                        <th>Type</th>
+                                        <th>Date and Time</th>
+                                        <th>Claimed to be</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data will be inserted here by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="upload-history-empty" style="display:none; text-align:center; padding:3rem; color:var(--gray);">
+                            <i class="fas fa-history" style="font-size:3rem; margin-bottom:1rem; opacity:0.3;"></i>
+                            <p>No files uploaded yet.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1540,19 +1553,22 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
             .then(response => response.json())
             .then(data => {
                 const tbody = document.querySelector('#upload-history-table tbody');
+                const emptyDiv = document.getElementById('upload-history-empty');
                 if (!tbody) return;
                 tbody.innerHTML = '';
                 if (!data.uploads || data.uploads.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#888;">No uploads found.</td></tr>';
+                    tbody.innerHTML = '';
+                    if (emptyDiv) emptyDiv.style.display = 'block';
                     return;
                 }
+                if (emptyDiv) emptyDiv.style.display = 'none';
                 data.uploads.forEach(upload => {
                     // Name & Employee ID in one cell
                     let nameCell = `<div><strong>${upload.uploader}</strong><br><span style='color:#888;'>${upload.employee_id}</span></div>`;
                     // Uploaded File/Link
                     let fileCell = '';
                     if (upload.drive_link) {
-                        fileCell = `<a href="${upload.drive_link}" target="_blank">Drive Link</a>`;
+                        fileCell = `<a href="${upload.drive_link}" target="_blank">View Drive Link</a>`;
                     } else if (upload.file_path) {
                         fileCell = `<a href="${upload.file_path}" target="_blank">${upload.file_name}</a>`;
                     } else {
@@ -1561,7 +1577,7 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                     tbody.innerHTML += `
                         <tr>
                             <td>${nameCell}</td>
-                            <td>${upload.project_name}</td>
+                            <td><strong>${upload.project_name}</strong></td>
                             <td>${upload.task_title}</td>
                             <td>${fileCell}</td>
                             <td>${upload.type}</td>
