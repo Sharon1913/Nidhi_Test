@@ -236,43 +236,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     exit();
 }
 
-// Handle fetching upload history via AJAX
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'fetch_upload_history') {
-    $query = "
-        SELECT fu.id, fu.file_name, fu.file_path, fu.drive_link, fu.type, fu.description, fu.uploaded_at, fu.claimed_status, fu.admin_status,
-               p.name AS project_name, t.title AS task_title, u.first_name, u.last_name, u.employee_id
-        FROM file_uploads fu
-        JOIN tasks t ON fu.task_id = t.id
-        JOIN projects p ON t.project_id = p.id
-        JOIN users u ON fu.employee_id = u.employee_id
-        ORDER BY fu.uploaded_at DESC
-    ";
-    $result = mysqli_query($conn, $query);
-    $uploads = [];
-    while ($row = mysqli_fetch_assoc($result)) {
-        $uploads[] = [
-            'id' => $row['id'],
-            'project_name' => htmlspecialchars($row['project_name']),
-            'task_title' => htmlspecialchars($row['task_title']),
-            'file_name' => htmlspecialchars($row['file_name']),
-            'file_path' => $row['file_path'] ? htmlspecialchars($row['file_path']) : null,
-            'drive_link' => $row['drive_link'] ? htmlspecialchars($row['drive_link']) : null,
-            'type' => htmlspecialchars($row['type']),
-            'description' => htmlspecialchars($row['description']),
-            'uploaded_at' => date('M d, Y H:i', strtotime($row['uploaded_at'])),
-            'claimed_status' => htmlspecialchars($row['claimed_status']),
-            'admin_status' => htmlspecialchars($row['admin_status']),
-            'uploader' => htmlspecialchars(trim($row['first_name'] . ' ' . $row['last_name'])),
-            'employee_id' => htmlspecialchars($row['employee_id'])
-        ];
-    }
-    if (!headers_sent()) {
-        header('Content-Type: application/json');
-    }
-    echo json_encode(['uploads' => $uploads]);
-    exit();
-}
-
 // Fetch notifications with file details (updated to avoid GROUP BY issue)
 $notifications_query = "
     SELECT n.id, n.project_id, n.task_id, n.message, n.uploaded_at, 
@@ -986,7 +949,7 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#upload-history" class="nav-link" data-section="upload-history">
+                <a href="#upload-history/admin_upload_history.php" class="nav-link" data-section="upload-history">
                     <i class="fas fa-history"></i>
                     <span>Upload History</span>
                 </a>
@@ -1260,43 +1223,6 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                     </div>
                 </div>
             </div>
-
-            <!-- Upload History Section (styled like user_dashboard.php) -->
-            <div id="upload-history-section" class="content-section" style="display: none;">
-                <div class="card fade-in">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i class="fas fa-history"></i>
-                            Upload History
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="modern-table" id="upload-history-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name & Employee ID</th>
-                                        <th>Project</th>
-                                        <th>Task</th>
-                                        <th>Uploaded File/Link</th>
-                                        <th>Type</th>
-                                        <th>Date and Time</th>
-                                        <th>Claimed to be</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Data will be inserted here by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                        <div id="upload-history-empty" style="display:none; text-align:center; padding:3rem; color:var(--gray);">
-                            <i class="fas fa-history" style="font-size:3rem; margin-bottom:1rem; opacity:0.3;"></i>
-                            <p>No files uploaded yet.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Footer -->
@@ -1482,9 +1408,6 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                     if (target) {
                         target.style.display = 'block';
                         target.classList.add('fade-in');
-                        if (section === 'upload-history') {
-                            fetchUploadHistory();
-                        }
                     }
                 });
             });
@@ -1544,54 +1467,6 @@ $total_tasks = mysqli_fetch_assoc($task_count_result)['total_tasks'];
                 dropdown.classList.remove('active');
             }
         });
-
-        function fetchUploadHistory() {
-            fetch('admin_dashboard.php?action=fetch_upload_history', {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector('#upload-history-table tbody');
-                const emptyDiv = document.getElementById('upload-history-empty');
-                if (!tbody) return;
-                tbody.innerHTML = '';
-                if (!data.uploads || data.uploads.length === 0) {
-                    tbody.innerHTML = '';
-                    if (emptyDiv) emptyDiv.style.display = 'block';
-                    return;
-                }
-                if (emptyDiv) emptyDiv.style.display = 'none';
-                data.uploads.forEach(upload => {
-                    // Name & Employee ID in one cell
-                    let nameCell = `<div><strong>${upload.uploader}</strong><br><span style='color:#888;'>${upload.employee_id}</span></div>`;
-                    // Uploaded File/Link
-                    let fileCell = '';
-                    if (upload.drive_link) {
-                        fileCell = `<a href="${upload.drive_link}" target="_blank">View Drive Link</a>`;
-                    } else if (upload.file_path) {
-                        fileCell = `<a href="${upload.file_path}" target="_blank">${upload.file_name}</a>`;
-                    } else {
-                        fileCell = upload.file_name || '-';
-                    }
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${nameCell}</td>
-                            <td><strong>${upload.project_name}</strong></td>
-                            <td>${upload.task_title}</td>
-                            <td>${fileCell}</td>
-                            <td>${upload.type}</td>
-                            <td>${upload.uploaded_at}</td>
-                            <td>${upload.claimed_status || '-'}</td>
-                            <td>${upload.admin_status || '-'}</td>
-                        </tr>
-                    `;
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching upload history:', error);
-            });
-        }
     </script>
 </body>
 </html>
