@@ -2,12 +2,14 @@
 session_start();
 
 // Database connection
-$host = "mysql";
+$host = "127.0.0.1";        // Localhost because of the SSH tunnel
+$port = 3307;               // Port mapped by the reverse SSH tunnel
 $user = "root";
 $password = "my-secret-pw";
 $database = "tihan_project_management";
 
-$conn = new mysqli($host, $user, $password, $database);
+$conn = new mysqli($host, $user, $password, $database, $port);
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }

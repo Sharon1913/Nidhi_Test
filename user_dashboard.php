@@ -15,7 +15,8 @@ if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'user' || !isset($_SESSI
     exit;
 }
 
-$conn = new mysqli("mysql", "root", "my-secret-pw", "tihan_project_management");
+$conn = new mysqli("127.0.0.1", "root", "my-secret-pw", "tihan_project_management", 3307);
+
 if ($conn->connect_error) {
     error_log("Connection failed: " . $conn->connect_error, 0);
     die("Connection failed: " . $conn->connect_error);
@@ -46,9 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 
-$conn = new mysqli("mysql", "root", "my-secret-pw", "tihan_project_management");
+$conn = new mysqli("127.0.0.1", "root", "my-secret-pw", "tihan_project_management", 3307);
+
 if ($conn->connect_error) {
-    error_log("Connection failed: " . $conn->connect_error, 0); // Log the error
+    error_log("Connection failed: " . $conn->connect_error, 0);
     die("Connection failed: " . $conn->connect_error);
 }
 
