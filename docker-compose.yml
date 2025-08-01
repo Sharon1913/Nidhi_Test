@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql-container-export
+    image: mysql:5.7
     container_name: mysql-container
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: "my-secret-pw"                   # replace with your actual root password
-      MYSQL_DATABASE: tihan_project_management  # optional
+      MYSQL_ROOT_PASSWORD: "my-secret-pw"
+      MYSQL_DATABASE: tihan_project_management
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -19,8 +19,7 @@ services:
       - "8080:80"
     depends_on:
       - mysql
-    #volumes:
-    #  - ./www:/var/www/html             # optional: map your local code
 
 volumes:
   mysql_data:
+
